@@ -1,7 +1,9 @@
+/*text input page, etc. color: #2B3F70*/
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Inter, sans-serif;
   line-height: 1.0;
-  font-weight: 100;
+  font-weight: 300;
 
   color-scheme: light dark;
   color: rgba(0, 0, 0, 1);
@@ -32,22 +34,25 @@ body {
 
 h1 {
   font-size: 3.2em;
+  font-style: italic;
+  font-weight: 200;
   line-height: 1.1;
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
+  border: 1px solid;
+  padding: 0.6em 3em;
+  font-size: 1.5em;
+  font-weight: 300;
   font-family: inherit;
-  background-color: #1a1a1a;
+  color: black;
+  background-color: #CDC7BA;
   cursor: pointer;
   transition: border-color 0.25s;
 }
 button:hover {
-  border-color: #646cff;
+  background-color: black;
+  color: white;
 }
 button:focus,
 button:focus-visible {
