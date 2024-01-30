@@ -1,4 +1,5 @@
-import sqlite3
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 import click
 from flask import current_app, g
@@ -13,30 +14,24 @@ from flask import current_app, g
 
 def get_db():
     if 'db' not in g:
-        g.db = sqlite3.connect(
-            current_app.config['DATABASE'],
-            detect_types=sqlite3.PARSE_DECLTYPES
-        )
-        g.db.row_factory = sqlite3.Row
+        # Use a service account.
+        cred = credentials.Certificate('./key.json')
+        app = firebase_admin.initialize_app(cred)
+        g.db = firestore.client()
 
     return g.db
 
-def close_db(e=None):
-    # check if g.db was set
-    db = g.pop('db', None)
+# def close_db(e=None):
+#     # check if g.db was set
+#     db = g.pop('db', None)
 
-    # if it was, close it
-    if db is not None:
-        db.close()
+#     # if it was, close it
+#     if db is not None:
+#         db.close()
 
 def init_db():
     # return db connection
     db = get_db()
-
-    # open file relative to flaskr package and execute sql commands from file
-    with current_app.open_resource('schema.sql') as f:
-        db.executescript(f.read().decode('utf8'))
-
 
 # defines a command line command called init-db that calls the init_db function
 # and shows a success message to the user
@@ -49,7 +44,7 @@ def init_db_command():
 
 def init_app(app):
     # tells Flask to call that function when cleaning up after returning the response
-    app.teardown_appcontext(close_db)
+    # app.teardown_appcontext(close_db)
 
     # adds a new command that can be called with the flask command
     app.cli.add_command(init_db_command)
