@@ -1,0 +1,26 @@
+2024-02-02 14:13:31,346 {filename}->{funcName} {levelname}: {message}
+2024-02-02 14:14:02,996 main.py-><module> INFO: Starting Backend API
+2024-02-02 14:15:20,934 main.py-><module> INFO: Starting Backend API
+2024-02-02 14:15:30,276 main.py->read_username INFO: GET Request to /usernames/{username}
+2024-02-05 18:35:15,274 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:39:48,879 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:40:06,547 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:41:18,917 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:48:07,901 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:54:16,882 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:54:27,598 main.py->read_username INFO: GET Request to /usernames/{username}
+2024-02-05 18:59:00,901 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:59:44,325 main.py-><module> INFO: Starting Backend API
+2024-02-05 18:59:59,882 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:00:47,214 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:04:00,365 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:04:03,094 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:04:15,046 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:04:28,551 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:05:07,171 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:07:51,560 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:07:58,712 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:08:28,785 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:10:58,344 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:11:08,100 main.py-><module> INFO: Starting Backend API
+2024-02-05 19:11:13,585 main.py-><module> INFO: Starting Backend API
