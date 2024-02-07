@@ -7,12 +7,14 @@ function NEROutput (){
 
     return (
         <>
-            <Link to="/">
-                <div><Button onClick={() => handleClick("/")}>Home</Button></div>
-            </Link>
-            <Link to ="/EntitySelect">
-                <div><Button onClick={() => handleClick("/")}>Back</Button></div>
-            </Link>
+            <div id="buttons">
+                <Link to="/">
+                    <div><Button onClick={() => handleClick("/")}>Home</Button></div>
+                </Link>
+                <Link to ="/EntitySelect">
+                    <div><Button onClick={() => handleClick("/")}>Back</Button></div>
+                </Link>
+            </div>
             <h2>Text Input with Anonymized Entries</h2>
             <div id= "neroutput">
                 <h3>NER Output goes here...</h3>

@@ -20,16 +20,16 @@ function Anonymity(){
     return (
         <>
             <h2>Level of Anonymity</h2>
-            <div id="anon">
-                <div className="form-check" id="custom">
-                    <label className="form-check-label">
-                        <input className="form-check-input" type="radio" name="Level" defaultChecked= {true} onClick={() => setChecked(false)}/>
-                    Default</label>
-                    <label className="form-check-label">
-                        <input className="form-check-input" type="radio" name="Level" onClick={() =>  setChecked(true)}/>
-                    Custom</label>
-                </div>
                 <form method="post" onSubmit={handleSubmit}>
+                <div id="anon">
+                    <div className="form-check" id="custom">
+                        <label className="form-check-label">
+                            <input className="form-check-input" type="radio" name="Level" defaultChecked= {true} onClick={() => setChecked(false)}/>
+                        Default</label>
+                        <label className="form-check-label">
+                            <input className="form-check-input" type="radio" name="Level" onClick={() =>  setChecked(true)}/>
+                        Custom</label>
+                    </div>
                     { Checked && 
                         <div className="form-check" id="checks">
                             <br/>
@@ -65,17 +65,17 @@ function Anonymity(){
                             </div>
                         </div>
                     }
-                    <br/>
+                    </div>
                     <div className= "form-group" id="textbox">
                         <textarea rows={10} cols={75} name="Input"></textarea>
                     </div>
-                    <br/>
-                    <button type="submit">Submit</button>
+                    <div id="buttons">
+                        <button type="submit">Submit</button>
+                        <Link to="/NEROutput">
+                            <div><Button onClick= {() => handleClick("/")} >Next</Button></div>
+                        </Link>
+                    </div>
                 </form>
-            </div>
-            <Link to="/NEROutput">
-                <div><Button onClick= {() => handleClick("/")} >Next</Button></div>
-            </Link>
 
         </>
     );
