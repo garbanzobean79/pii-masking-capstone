@@ -1,6 +1,6 @@
 import Anonymity from "./components/Anonymity";
 import Start from "./components/Start";
-import TextInput from "./components/TextInput";
+import NEROutput from "./components/NEROutput";
 
 import { BrowserRouter as Router, Routes, Route} from "react-router-dom";
 function App(){
@@ -10,7 +10,7 @@ function App(){
             <Routes>
                 <Route path="/" element={<Start/>}/>
                 <Route path="/EntitySelect" element={<Anonymity/>}/>
-                <Route path= "/TextInput" element = {<TextInput/>}/>
+                <Route path="/NEROutput" element = {<NEROutput/>}/>
             </Routes>
         </Router>
     </>

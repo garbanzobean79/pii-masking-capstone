@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(0, 0, 0, 1);
-  background-color: #615a81;;
+  background-color: #C5C4B2;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -25,9 +25,11 @@ a:hover {
 }
 
 body {
-  margin: 0;
   display: flex;
-  place-items: center;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+  margin: 0; 
   min-width: 320px;
   min-height: 100vh;
 }
@@ -37,6 +39,12 @@ h1 {
   font-style: italic;
   font-weight: 200;
   line-height: 1.1;
+}
+
+h2{
+  font-size: 1.7em;
+  font-weight: 100;
+  font-style: italic;
 }
 
 button {
@@ -50,6 +58,7 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   background-color: black;
   color: white;
@@ -57,6 +66,39 @@ button:hover {
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
+}
+
+#buttons{
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  margin-top: 50px;
+}
+
+#login{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#user{
+  width: 200px;
+}
+
+#custom{
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#anon{
+  display: flex;
+  flex-direction: row;
+}
+
+#textbox{
+  display: flex;
+  justify-content: start;
 }
 
 @media (prefers-color-scheme: light) {
@@ -70,4 +112,42 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+label{
+  font-size: 1.5em;
+  color: #7D6943;
+  font-weight: 300;
+  margin-right: 30px;
+}
+
+#checks{
+  background-color: #D9D9D9;
+  border-style: solid;
+  border-color: black;
+}
+
+input[type=radio]{
+  width: 1.2em;
+  height: 1.2em;
+}
+
+input[type=checkbox]{
+  width: 1.2em;
+  height: 1.2em;
+  margin-right: 30px;
+  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-left: 20px;
+}
+
+input[type=text]{
+  font-size: 1.5em;
+  font-family:monospace;
+}
+
+
+#neroutput{
+  background-color: #D9D9D9;
+  border-style: solid;
 }
