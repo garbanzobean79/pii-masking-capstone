@@ -5,16 +5,26 @@ import { useState, ChangeEvent} from "react";
 function Anonymity(){
 
     const [Checked, setChecked]= useState(false);
-    
+    const [Name, setName] = useState(false)
+    const [Organization, setOrganization]= useState(false)
+    const [Dates, setDates] = useState(false)
+    const [Location, setLocation]= useState(false)
+    const [Event, setEvent] = useState(false)
+    const [Medical, setMedical]= useState(false)
+
+    const [Text, setText] = useState("")
     const handleClick = useNavigate()
 
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const form= e.target;
-        const formData= new FormData(form);
-        const formJson = Object.fromEntries(formData.entries());
-        console.log(formJson);  //For the custom entries
-        console.log(Checked);   //for the default or custom setting 
+        console.log(Checked);   
+        console.log(Text);
+        console.log(Name);
+        console.log(Organization);
+        console.log(Dates);
+        console.log(Location);
+        console.log(Event);
+        console.log(Medical);
     }
 
     return (
@@ -35,39 +45,39 @@ function Anonymity(){
                             <br/>
                             <div className="form-check">
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Name"/>
+                                    <input className="form-check-input" type="checkbox" name= "Name" onChange={(e) => {setName(e.target.checked)}}/>
                                 Name</label>
                             </div>
                             <div>
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Organization"/>
+                                    <input className="form-check-input" type="checkbox" name= "Organization" onChange={(e) => {setOrganization(e.target.checked)}}/>
                                 Organization</label>
                             </div>
                             <div>
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Dates"/>
+                                    <input className="form-check-input" type="checkbox" name= "Dates" onChange={(e) => {setDates(e.target.checked)}}/>
                                 Dates</label>
                             </div>
                             <div>
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Location"/>
+                                    <input className="form-check-input" type="checkbox" name= "Location" onChange={(e) => {setLocation(e.target.checked)}}/>
                                 Location</label>
                             </div>
                             <div>
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Event"/>
+                                    <input className="form-check-input" type="checkbox" name= "Event" onChange={(e) => {setEvent(e.target.checked)}}/>
                                 Event</label>
                             </div>
                             <div>
                                 <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Med"/>
+                                    <input className="form-check-input" type="checkbox" name= "Med" onChange={(e) => {setMedical(e.target.checked)}}/>
                                 Medical Information</label>
                             </div>
                         </div>
                     }
                     </div>
                     <div className= "form-group" id="textbox">
-                        <textarea rows={10} cols={75} name="Input"></textarea>
+                        <textarea rows={10} cols={75} name="Input" placeholder=" Enter text here" onChange={(e) => {setText(e.target.value)}}></textarea>
                     </div>
                     <div id="buttons">
                         <button type="submit">Submit</button>

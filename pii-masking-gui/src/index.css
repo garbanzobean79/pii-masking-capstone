@@ -7,7 +7,7 @@
 
   color-scheme: light dark;
   color: rgba(0, 0, 0, 1);
-  background-color: #C5C4B2;
+  background-color: #B2AC88;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -71,8 +71,10 @@ button:focus-visible {
 #buttons{
   display: flex;
   flex-direction: row;
-  justify-content: start;
+  width: 500px;
   margin-top: 50px;
+  margin-left: 30%;
+  gap: 40%;
 }
 
 #login{
@@ -91,10 +93,17 @@ button:focus-visible {
   gap: 20px;
 }
 
+#aut{
+  display: flex;
+  flex-direction: column;
+}
+
 #anon{
   display: flex;
   flex-direction: row;
+  margin-bottom: 50px;
 }
+
 
 #textbox{
   display: flex;
@@ -121,10 +130,19 @@ label{
   margin-right: 30px;
 }
 
+#startup{
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  padding-left: 200px;
+  padding-right: 200px;
+}
+
 #checks{
   background-color: #D9D9D9;
   border-style: solid;
   border-color: black;
+  margin-left: 50px;
 }
 
 input[type=radio]{
@@ -141,7 +159,7 @@ input[type=checkbox]{
   margin-left: 20px;
 }
 
-input[type=text]{
+input[type=text], input[type=password]{
   font-size: 1.5em;
   font-family:monospace;
 }
