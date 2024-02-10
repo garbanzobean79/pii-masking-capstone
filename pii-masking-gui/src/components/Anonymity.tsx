@@ -4,7 +4,7 @@ import { useState, ChangeEvent} from "react";
 
 function Anonymity(){
 
-    const [Checked, setChecked]= useState(false);
+    const [Checked, setChecked]= useState(false); //Default, Custom
     const [Name, setName] = useState(false)
     const [Organization, setOrganization]= useState(false)
     const [Dates, setDates] = useState(false)
@@ -41,37 +41,46 @@ function Anonymity(){
                         Custom</label>
                     </div>
                     { Checked && 
-                        <div className="form-check" id="checks">
-                            <br/>
-                            <div className="form-check">
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Name" onChange={(e) => {setName(e.target.checked)}}/>
-                                Name</label>
+                        <div id="checks">
+                            <div id="icon">
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Name" onChange={(e) => {setName(e.target.checked)}}/>
+                                    Name</label>
+                                </div>
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Organization" onChange={(e) => {setOrganization(e.target.checked)}}/>
+                                    Organization</label>
+                                </div>
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Dates" onChange={(e) => {setDates(e.target.checked)}}/>
+                                    Dates</label>
+                                </div>
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Location" onChange={(e) => {setLocation(e.target.checked)}}/>
+                                    Location</label>
+                                </div>
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Event" onChange={(e) => {setEvent(e.target.checked)}}/>
+                                    Event</label>
+                                </div>
+                                <div id="cont">
+                                    <label className="form-check-label">
+                                        <input className="form-check-input" type="checkbox" name= "Med" onChange={(e) => {setMedical(e.target.checked)}}/>
+                                    Medical Information</label>
+                                </div>
                             </div>
-                            <div>
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Organization" onChange={(e) => {setOrganization(e.target.checked)}}/>
-                                Organization</label>
-                            </div>
-                            <div>
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Dates" onChange={(e) => {setDates(e.target.checked)}}/>
-                                Dates</label>
-                            </div>
-                            <div>
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Location" onChange={(e) => {setLocation(e.target.checked)}}/>
-                                Location</label>
-                            </div>
-                            <div>
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Event" onChange={(e) => {setEvent(e.target.checked)}}/>
-                                Event</label>
-                            </div>
-                            <div>
-                                <label className="form-check-label">
-                                    <input className="form-check-input" type="checkbox" name= "Med" onChange={(e) => {setMedical(e.target.checked)}}/>
-                                Medical Information</label>
+                            <div id= "icons">
+                                <span>&#8505;</span>
+                                <span>&#8505;</span>
+                                <span>&#8505;</span>
+                                <span>&#8505;</span>
+                                <span>&#8505;</span>
+                                <span>&#8505;</span>
                             </div>
                         </div>
                     }
@@ -82,7 +91,7 @@ function Anonymity(){
                     <div id="buttons">
                         <button type="submit">Submit</button>
                         <Link to="/NEROutput">
-                            <div><Button onClick= {() => handleClick("/")} >Next</Button></div>
+                            <div><Button onClick={() => {handleClick("/")}}>Next</Button></div>
                         </Link>
                     </div>
                 </form>

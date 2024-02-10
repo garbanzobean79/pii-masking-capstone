@@ -16,36 +16,42 @@ function Start(){
     }
 
     return (
-    <>
-        <div id="startup">
-        <h1>Application Name</h1>
-        <form method="post" onSubmit={handleSubmit} id="login">
-            <div id="auth">
-                    <div>
-                    <label id="user">Username:</label>
-                    <input type= "text" name="username" value={Username} onChange={(e) => {setUsername(e.target.value)}}/>
+        <>
+            <div id="startup">
+                <h1>Application Name</h1>
+                <form method="post" onSubmit={handleSubmit} id="login">
+                    <div id="aut">
+                            <div>
+                            <label id="user">Username:</label>
+                            <input type= "text" name="username" value={Username} placeholder= "Enter username" onChange={(e) => {setUsername(e.target.value)}}/>
+                            </div>
+                            <div>
+                            <label id="user"> Password:</label>
+                            <input type="password" name="password" value={Password} placeholder= "Enter password" onChange= {(e) => {setPassword(e.target.value)}}/>
+                            </div>
                     </div>
-                    <div>
-                    <label id="user"> Password:</label>
-                    <input type="password" name="password" value={Password} onChange= {(e) => {setPassword(e.target.value)}}/>
+                    <div id="buttons1">
+                        <button type="submit">Login</button>
+                        <Link to= "/EntitySelect">
+                            <div><Button onClick= {() => handleClick("/")}>Next</Button></div>
+                        </Link>
                     </div>
-            </div>
-            <div id="buttons">
-                <button type="submit">Login</button>
-                <Link to= "/EntitySelect">
-                    <div><Button onClick= {() => handleClick("/")}>Next</Button></div>
+                </form>
+                <Link to= "/Signup">
+                    <div>
+                        <label>Register as a new user: </label>
+                        <Button onClick={() => handleClick("/")}>Signup</Button>
+                    </div>
                 </Link>
             </div>
-        </form>
-        <Link to= "/Signup">
-            <div>
-                <label>Register as a new user: </label>
-                <Button onClick={() => handleClick("/")}>Signup</Button>
-            </div>
-        </Link>
-        </div>
-    </>
+        </>
     );
 }
 
 export default Start;
+
+/*
+                        <Link to= "/EntitySelect">
+                            <div><Button onClick= {() => handleClick("/")}>Next</Button></div>
+                        </Link>
+*/
