@@ -75,12 +75,30 @@ function Anonymity(){
                                 </div>
                             </div>
                             <div id= "icons">
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all names</p>
+                                </div>
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all organizations</p>
+                                </div>
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all dates</p>
+                                </div>
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all locations</p>
+                                </div>
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all events</p>
+                                </div>
+                                <div id="info">
                                 <span>&#8505;</span>
+                                <p>NER model masks all personal medical information</p>
+                                </div>
                             </div>
                         </div>
                     }

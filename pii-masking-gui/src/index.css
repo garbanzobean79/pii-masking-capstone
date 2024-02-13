@@ -247,6 +247,19 @@ label{
   font-size: 1em;
 }
 
+#info{
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
+
+#info p{
+  margin-top: 8px;
+  background-color: white;
+  padding-right: 5px;
+  padding-top: 10px;
+}
+
 #cont{
   padding-top: 1px;
 }
