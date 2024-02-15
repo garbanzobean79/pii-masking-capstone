@@ -7,6 +7,10 @@ function Start(){
     const [Username, setUsername]= useState("")
     const [Password, setPassword]= useState("")
 
+    const submitCredentials = () => {
+        
+    }
+
     const handleClick= useNavigate()
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
