@@ -20,6 +20,11 @@ To install new packages to the virtual environment, first activate the virtual e
 pip3 install <package_name>
 ```
 
+To generate a random secret key to be used to sign JWT tokens, use the command:
+```
+openssl rand -hex 32
+```
+
 To gain access to the firstore database:
 - Get the key.json file from discord / google cloud console
 - Place the key.json file in the backend folder
