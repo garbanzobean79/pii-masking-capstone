@@ -25,14 +25,15 @@ logger.info('Starting Backend API')
 # Authentication information
 # Authentication scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 # Token info
-SECRET_KEY = os.getenv("SECRETKEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Use a service account.
 cred = credentials.Certificate('key.json')
-fb_app = firebase_admin.initialize_app(cred)
+fb_app = firebase_admin.initialize_app(cred )
 db = firestore.client()
 
 class User(BaseModel):
@@ -216,3 +217,7 @@ async def read_users_me(
 ):
     del current_user.hashed_password
     return current_user
+
+@app.get("/masktext")
+async def mask_text():
+    return 
