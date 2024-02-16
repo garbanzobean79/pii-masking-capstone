@@ -7,9 +7,9 @@ function Start(){
     const [Username, setUsername]= useState("")
     const [Password, setPassword]= useState("")
     const[Loading, setLoading]= useState(false)
+    const [data, setData]= useState(null);
 
     const submitCredentials = () => {
-        const [data, setData]= useState(null);
         setLoading(true)
 
         useEffect(() => {
@@ -35,6 +35,8 @@ function Start(){
         console.log(Username)
         console.log(Password)
         submitCredentials();
+        console.log(data);
+
     }
 
     return (
