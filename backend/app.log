@@ -24,3 +24,213 @@
 2024-02-05 19:10:58,344 main.py-><module> INFO: Starting Backend API
 2024-02-05 19:11:08,100 main.py-><module> INFO: Starting Backend API
 2024-02-05 19:11:13,585 main.py-><module> INFO: Starting Backend API
+2024-02-06 11:28:41,442 main.py-><module> INFO: Starting Backend API
+2024-02-06 11:29:49,753 main.py-><module> INFO: Starting Backend API
+2024-02-06 11:30:33,229 main.py-><module> INFO: Starting Backend API
+2024-02-06 11:30:43,549 main.py-><module> INFO: Starting Backend API
+2024-02-06 11:31:22,534 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:06:33,565 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:06:36,651 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:08:06,999 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:10:10,406 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:10:22,743 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:11:10,411 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:13:12,343 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:17:27,450 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:19:35,629 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:19:58,097 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:20:33,973 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:21:18,832 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:22:28,609 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:25:51,904 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:25:54,094 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:27:20,746 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:27:27,596 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:27:35,371 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:27:45,363 main.py-><module> INFO: Starting Backend API
+2024-02-06 15:27:50,508 main.py-><module> INFO: Starting Backend API
+2024-02-09 14:01:39,076 main.py-><module> INFO: Starting Backend API
+2024-02-09 14:02:29,908 main.py-><module> INFO: Starting Backend API
+2024-02-09 14:03:56,271 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 13:21:18,096 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:24:34,043 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:25:52,819 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:26:17,167 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:26:51,895 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:26:56,123 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:27:03,522 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:33:15,262 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:33:25,557 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:35:58,647 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:37:35,999 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:37:49,900 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:40:28,632 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:41:41,880 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:42:43,123 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:43:58,158 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:43:59,524 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:44:52,228 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:45:14,273 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:46:20,086 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:46:51,119 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:47:52,641 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:48:00,733 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:48:18,554 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:48:22,439 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:48:50,967 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:48:57,749 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:49:10,353 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:52:49,904 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:52:59,341 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:53:25,940 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:53:52,165 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:53:56,039 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:54:35,297 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:54:46,292 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:54:52,882 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:55:14,199 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:55:21,003 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:55:38,413 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:55:47,292 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:57:00,900 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:59:41,450 main.py-><module> INFO: Starting Backend API
+2024-02-14 13:59:48,329 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:05:10,406 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:05:14,171 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:05:37,846 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:08:35,525 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:08:37,370 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:08:48,236 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:08:52,122 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:08:54,999 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:31:33,728 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:33:33,000 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:33:43,706 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:35:23,434 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:35:28,197 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:40:12,800 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:40:18,924 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:40:36,629 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:40:45,709 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:42:03,193 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:42:07,093 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:42:52,333 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:43:08,934 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:43:19,700 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:43:37,221 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:43:59,171 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:44:25,399 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:44:42,618 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:44:53,270 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:45:06,191 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:45:25,031 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:45:29,948 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:46:34,667 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:48:12,843 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:48:59,617 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:49:15,072 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:49:21,800 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:49:22,184 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:50:00,179 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:50:03,353 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:50:21,573 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:50:40,746 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:51:26,733 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:51:35,202 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:51:36,243 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-14 14:51:43,902 main.py-><module> INFO: Starting Backend API
+2024-02-14 14:52:50,770 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 10:40:46,946 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:41:04,869 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:41:31,813 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:43:41,760 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:44:00,209 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 10:44:48,249 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:45:37,047 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:50:09,496 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:50:11,758 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:50:23,080 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:50:33,113 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:51:45,650 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:54:17,984 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:54:30,128 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 10:55:18,755 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:56:04,153 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:57:34,894 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:58:31,496 main.py-><module> INFO: Starting Backend API
+2024-02-15 10:58:40,916 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 12:33:34,364 main.py-><module> INFO: Starting Backend API
+2024-02-15 12:36:29,450 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 12:40:07,155 main.py-><module> INFO: Starting Backend API
+2024-02-15 12:40:21,826 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-15 12:47:25,756 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:41:49,252 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:42:00,529 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:42:17,267 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-16 11:43:10,398 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:43:11,420 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:43:41,445 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:43:49,140 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:43:52,710 bcrypt.py->_load_backend_mixin WARNING: (trapped) error reading bcrypt version
+Traceback (most recent call last):
+  File "/home/garysan/git/pii-masking-capstone/backend/.venv/lib/python3.10/site-packages/passlib/handlers/bcrypt.py", line 620, in _load_backend_mixin
+    version = _bcrypt.__about__.__version__
+AttributeError: module 'bcrypt' has no attribute '__about__'
+2024-02-16 11:43:58,445 main.py-><module> INFO: Starting Backend API
+2024-02-16 11:44:04,518 main.py-><module> INFO: Starting Backend API
