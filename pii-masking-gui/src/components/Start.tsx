@@ -1,14 +1,32 @@
 import Button from "./Button";
 import  {Link, useNavigate} from 'react-router-dom';
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, useEffect, useState} from "react";
 
 function Start(){
 
     const [Username, setUsername]= useState("")
     const [Password, setPassword]= useState("")
+    const[Loading, setLoading]= useState(false)
 
     const submitCredentials = () => {
-        
+        const [data, setData]= useState(null);
+        setLoading(true)
+
+        useEffect(() => {
+            const fetchData = async () =>{
+                try{
+                    const response= await fetch("/token");
+                    const json= await response.json();
+                    setData(json);
+                    setLoading(false);
+                }
+                catch(error){
+                    console.log("Error: ", error);
+                    setLoading(false);
+                }
+            }
+            fetchData();
+        }, []);
     }
 
     const handleClick= useNavigate()
@@ -16,7 +34,7 @@ function Start(){
         e.preventDefault();
         console.log(Username)
         console.log(Password)
-
+        submitCredentials();
     }
 
     return (
@@ -53,9 +71,3 @@ function Start(){
 }
 
 export default Start;
-
-/*
-                        <Link to= "/EntitySelect">
-                            <div><Button onClick= {() => handleClick("/")}>Next</Button></div>
-                        </Link>
-*/
