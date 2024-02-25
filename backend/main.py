@@ -12,6 +12,8 @@ from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 import os
 
+import requests
+
 import firebase_admin
 from firebase_admin import credentials, firestore
 
@@ -25,8 +27,9 @@ logger.info('Starting Backend API')
 # Authentication information
 # Authentication scheme
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 # Token info
-SECRET_KEY = os.getenv("SECRETKEY")
+SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -34,6 +37,10 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 cred = credentials.Certificate('key.json')
 fb_app = firebase_admin.initialize_app(cred)
 db = firestore.client()
+
+# Huggingface model
+INFERENCE_URL = "https://api-inference.huggingface.co/models/Isotonic/deberta-v3-base_finetuned_ai4privacy_v2"
+INFERENCE_HEADER = {"Authorization": f'Bearer {os.getenv("INFERENCE_TOKEN")}'}
 
 class User(BaseModel):
     username: str
@@ -51,6 +58,55 @@ class UserInDB(User):
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
+
+######
+# Calling model
+######
+async def get_inference(payload):
+    response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
+
+    res_json = response.json()
+
+    print(res_json)
+
+    if 'error' in res_json and 'estimated_time' in res_json:
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Error from HuggingFace: {response['error']}. Estimated time: {response['estimated_time']}",
+            headers={'Retry-After': response['estimated_time']}
+        )
+    elif 'error' in res_json:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error from HuggingFace: {response['error']}."
+        )
+
+    return response.json()
+
+# @Dipen: insert your masking code here
+@app.post("/masktext")
+async def mask_text(text: str):
+    return get_inference({"inputs": text})
+
+######
+# Store fine-tuning data from user
+######
+# TODO
+@app.post("/submit-model-feedback")
+async def submit_model_feedback():
+    return "testing"
+
+#######
+# User Validation
+#######
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    username: str | None = None
+
 
 @app.post("/register/")
 def register(user: RegisteringUser):
@@ -96,27 +152,7 @@ def read_username(username: str):
     for doc in docs:
         print(f"{doc.id} => {doc.to_dict()}")
         return doc.to_dict()
-    
-#################
-# Authentication
-#################
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW",
-        "disabled": False,
-    }
-}
 
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
-
-class TokenData(BaseModel):
-    username: str | None = None
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
