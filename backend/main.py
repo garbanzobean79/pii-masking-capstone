@@ -153,7 +153,6 @@ def read_username(username: str):
         print(f"{doc.id} => {doc.to_dict()}")
         return doc.to_dict()
 
-
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
