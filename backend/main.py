@@ -15,7 +15,7 @@ import os
 import requests
 
 import firebase_admin
-from firebase_admin import credentials, firestore
+from firebase_admin import credentials, firestore, exceptions
 
 app = FastAPI()
 
@@ -58,43 +58,6 @@ class UserInDB(User):
 @app.get("/")
 def read_root():
     return {"Hello": "World"}
-
-######
-# Calling model
-######
-async def get_inference(payload):
-    response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
-
-    res_json = response.json()
-
-    print(res_json)
-
-    if 'error' in res_json and 'estimated_time' in res_json:
-        raise HTTPException(
-            status_code=503, 
-            detail=f"Error from HuggingFace: {response['error']}. Estimated time: {response['estimated_time']}",
-            headers={'Retry-After': response['estimated_time']}
-        )
-    elif 'error' in res_json:
-        raise HTTPException(
-            status_code=500, 
-            detail=f"Error from HuggingFace: {response['error']}."
-        )
-
-    return response.json()
-
-# @Dipen: insert your masking code here
-@app.post("/masktext")
-async def mask_text(text: str):
-    return get_inference({"inputs": text})
-
-######
-# Store fine-tuning data from user
-######
-# TODO
-@app.post("/submit-model-feedback")
-async def submit_model_feedback():
-    return "testing"
 
 #######
 # User Validation
@@ -251,3 +214,85 @@ async def read_users_me(
 ):
     del current_user.hashed_password
     return current_user
+
+
+######
+# Calling model
+######
+class InferenceEntity(BaseModel):
+    entity_group: str
+    score: float
+    word: str
+    start: int
+    end: int
+
+class MaskData(BaseModel):
+    input: str
+    entities: list[InferenceEntity]
+    output: str
+
+async def store_mask_history(mask_data: MaskData, user: User):
+    print("store_mask_history()")
+
+    col_ref = db.collection(f'users/{user.username}/mask_history')
+    doc_ref = col_ref.document(datetime.now().strftime('%m-%d-%Y %H:%M:%S'))
+
+    try:
+        res = doc_ref.set(mask_data.model_dump())
+    except exceptions.FirebaseError as e:
+        print("Error setting document:", e)
+        return {'error': 'There was an error in storing this masking instance to your masking history.'}
+
+    return
+
+
+async def get_inference(payload):
+    response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
+
+    res_json = response.json()
+
+    if 'error' in res_json and 'estimated_time' in res_json:
+        raise HTTPException(
+            status_code=503, 
+            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {response['estimated_time']}",
+            headers={'Retry-After': res_json['estimated_time']}
+        )
+    elif 'error' in res_json:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error from HuggingFace: {res_json['error']}."
+        )
+
+    return res_json
+
+# @Dipen: insert your masking code here
+@app.post("/mask-text")
+async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_active_user)]):
+    inference_res = await get_inference({"inputs": text})
+
+    mask_data = MaskData(
+        input = text,
+        entities = [InferenceEntity(**entity_dict) for entity_dict in inference_res],
+        output = "placeholder"  # place masked output here
+    )
+
+    print(mask_data)
+
+    # Store masking information in db
+    history_res = await store_mask_history(mask_data, current_user)
+
+    # Return masked text to frontend
+    if history_res is None:
+        return {'interfence_result': inference_res}
+    else:
+        return {**history_res, 'inference_result': inference_res}
+
+
+######
+# Store fine-tuning data from user
+######
+# TODO
+@app.post("/model-feedback")
+async def submit_model_feedback(current_user: Annotated[str, Depends(get_current_active_user)]):
+    return 
+
