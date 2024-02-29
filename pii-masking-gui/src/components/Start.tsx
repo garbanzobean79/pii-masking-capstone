@@ -1,12 +1,15 @@
 import Button from "./Button";
 import  {Link, useNavigate} from 'react-router-dom';
-import {ChangeEvent, useEffect, useState} from "react";
+import {ChangeEvent, useEffect, useState, useContext} from "react";
+
+import {UserContext} from "../context/UserContext"
 
 function Start(){
 
     const [Username, setUsername]= useState("")
     const [Password, setPassword]= useState("")
     const[Loading, setLoading]= useState(false)
+    const [, setToken]= useContext(UserContext);
     const [data, setData]= useState(null);
 
     const submitCredentials = () => {
