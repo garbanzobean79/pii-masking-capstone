@@ -105,12 +105,12 @@ def register(user: RegisteringUser):
     # Register this user
     # Hash password
     db_user = UserInDB(
-        **user.dict(),
-        register_time = datetime.now(),
+        **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
+    db_user.register_time = datetime.now()
 
-    db.collection('users').document(db_user.username).set(db_user.dict())
+    db.collection('users').document(db_user.username).set(db_user.model_dump())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
 
