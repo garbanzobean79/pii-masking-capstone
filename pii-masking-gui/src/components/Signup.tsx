@@ -22,7 +22,7 @@ function Signup(){
             body: JSON.stringify({username: Username, email: Email, full_name: Name, password: Password})
         };
 
-        const response= await fetch("/register/", requestOptions);
+        const response= await fetch("http://127.0.0.1:8000/register/", requestOptions);
         const data= await response.json();
 
         if(!response.ok){
