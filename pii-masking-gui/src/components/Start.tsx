@@ -6,46 +6,48 @@ import {UserContext} from "../context/UserContext"
 
 function Start(){
 
-    const [Username, setUsername]= useState("")
-    const [Password, setPassword]= useState("")
-    const[Loading, setLoading]= useState(false)
+    const [Username, setUsername]= useState("");
+    const [Password, setPassword]= useState("");
+    const [Error, setError]= useState("");
+    const [Message, setMessage]= useState(false);
     const [, setToken]= useContext(UserContext);
-    const [data, setData]= useState(null);
 
-    const submitCredentials = () => {
-        setLoading(true)
+    const submitCredentials = async() => {
+        const requestOptions = {
+            method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: `grant_type=&username=${Username}&password=${Password}&scope=&client_id=&client_secret=`
 
-        useEffect(() => {
-            const fetchData = async () =>{
-                try{
-                    const response= await fetch("/token");
-                    const json= await response.json();
-                    setData(json);
-                    setLoading(false);
-                }
-                catch(error){
-                    console.log("Error: ", error);
-                    setLoading(false);
-                }
-            }
-            fetchData();
-        }, []);
-    }
+        };
+        const response= await fetch("http://127.0.0.1:8000/token", requestOptions);
+        const data= await response.json();
+
+        if(!response.ok){
+            setError(data.detail);
+            setMessage(true);
+        }
+        else{
+            setToken(data.access_token);
+            setMessage(false);
+        }
+    };
 
     const handleClick= useNavigate()
+
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log(Username)
-        console.log(Password)
         submitCredentials();
-        console.log(data);
-
     }
 
     return (
         <>
             <div id="startup">
                 <h1>Application Name</h1>
+                { Message &&
+                    <div>
+                        <p>Invalid Username or Password, please try again</p>
+                    </div>
+                }
                 <form method="post" onSubmit={handleSubmit} id="login">
                     <div id="aut">
                             <div>
