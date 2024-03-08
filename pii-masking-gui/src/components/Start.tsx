@@ -1,6 +1,6 @@
 import Button from "./Button";
 import  {Link, useNavigate} from 'react-router-dom';
-import {ChangeEvent, useEffect, useState, useContext} from "react";
+import {ChangeEvent, useState, useContext} from "react";
 
 import {UserContext} from "../context/UserContext"
 
@@ -10,6 +10,7 @@ function Start(){
     const [Password, setPassword]= useState("");
     const [Error, setError]= useState("");
     const [Message, setMessage]= useState(false);
+    const [Navigate, setNavigate]= useState(false);
     const [, setToken]= useContext(UserContext);
 
     const submitCredentials = async() => {
@@ -25,18 +26,23 @@ function Start(){
         if(!response.ok){
             setError(data.detail);
             setMessage(true);
+            setNavigate(false);
         }
         else{
             setToken(data.access_token);
             setMessage(false);
+            setNavigate(true);
         }
     };
 
-    const handleClick= useNavigate()
+    const handleClick= useNavigate();
 
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         submitCredentials();
+        if(Navigate){
+            handleClick("/EntitySelect");
+        }
     }
 
     return (
@@ -61,9 +67,6 @@ function Start(){
                     </div>
                     <div id="buttons1">
                         <button type="submit">Login</button>
-                        <Link to= "/EntitySelect">
-                            <div><Button onClick= {() => handleClick("/")}>Next</Button></div>
-                        </Link>
                     </div>
                 </form>
                 <Link to= "/Signup">

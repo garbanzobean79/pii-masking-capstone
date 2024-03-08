@@ -13,6 +13,8 @@ function Signup(){
     const [Confirmation, setConfirmation]= useState("");
     const [, setToken]= useContext(UserContext);
     const [Error, setError]= useState("");
+    const [Message, setMessage]= useState(false);
+    const [Navigate, setNavigate]= useState(false);
     const handleClick = useNavigate();
 
     const submitCredentials = async() => {
@@ -30,6 +32,7 @@ function Signup(){
         }
         else{
             setToken(data.access_token);
+            setNavigate(true);
         }
     }
 
@@ -37,9 +40,14 @@ function Signup(){
         e.preventDefault();
         if(Password == Confirmation){
             submitCredentials();
+            setMessage(false);
+            if(Navigate){
+                handleClick("/");
+            }
         }
         else{
             setError("Make sure passwords are the same.");
+            setMessage(true);
         }
     }
 
@@ -62,13 +70,13 @@ function Signup(){
                             <div>
                                 <label>Enter Password: </label>
                                 <input type="password" name="password" value={Password} placeholder= "Enter password" onChange={(e) => {setPassword(e.target.value)}}/></div>
+                            { Message &&
+                                <p>Make sure passwords are the same length.</p>
+                            }
                             <div>
                                 <label>Confirm Password: </label>
                                 <input type="password" name="Password" value={Confirmation} placeholder= "Confirm password" onChange={(e) => {setConfirmation(e.target.value)}}/></div>
                                 <button type="submit" onClick={() => handleSubmit}>Signup</button>
-                            <Link to="/">
-                                <button onClick={() => handleClick("/")}>Next</button>
-                            </Link>
                             <ErrorMessage message={Error}/>
                         </div>
                     </div>

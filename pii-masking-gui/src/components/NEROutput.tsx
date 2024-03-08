@@ -1,10 +1,24 @@
 import Button from "./Button";
 import {Link, useNavigate} from 'react-router-dom';
-import {useState, ChangeEvent} from "react";
+import {useState, ChangeEvent, useContext} from "react";
+
+import {UserContext} from "../context/UserContext";
 
 function NEROutput (){
 
     const [Checked, setChecked]= useState(false)
+    const[Logout, setLogout]= useState(false);
+    const [, setToken]= useContext(UserContext);
+
+    const handleLogout = () => {
+        setToken(null);
+        setLogout(false);
+        handleClick("/");
+    }
+
+    const checkLogout = () => {
+        setLogout(true);
+    }
 
     const handleClick= useNavigate()
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
@@ -14,6 +28,14 @@ function NEROutput (){
 
     return (
         <>
+            <Button onClick={checkLogout}>Logout</Button>
+            { Logout &&
+                <div>
+                    <p>Are you sure you want to logout?</p>
+                    <button onClick={handleLogout}>Yes</button>
+                    <button onClick={() => setLogout(false)}>No</button>
+                </div>
+            }
             <div id="buttons2">
                 <Link to="/">
                     <div><Button onClick={() => handleClick("/")}>Home</Button></div>

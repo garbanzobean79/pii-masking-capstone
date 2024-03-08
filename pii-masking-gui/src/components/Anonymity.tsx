@@ -1,6 +1,8 @@
 import { Link, useNavigate} from "react-router-dom";
 import Button from "./Button";
-import { useState, ChangeEvent} from "react";
+import { useState, ChangeEvent, useContext} from "react";
+
+import {UserContext} from "../context/UserContext";
 
 function Anonymity(){
 
@@ -11,8 +13,47 @@ function Anonymity(){
     const [Location, setLocation]= useState(false)
     const [Event, setEvent] = useState(false)
     const [Medical, setMedical]= useState(false)
+    const [Error, setError]= useState("");
+    const[Logout, setLogout]= useState(false);
+    const [, setToken]= useContext(UserContext);
+    const [Text, setText] = useState("");
+    const [Masked, setMasked]= useState("");
+    const [Navigate, setNavigate]= useState(false);
 
-    const [Text, setText] = useState("")
+    const handleLogout = () => {
+        setToken(null);
+        setLogout(false);
+        handleClick("/");
+    }
+
+    const checkLogout = () => {
+        setLogout(true);
+    }
+
+    const submitText= async() => {
+        const requestOptions = {
+            method: "POST",
+                headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({text: Text})
+
+        };
+        const response= await fetch("http://127.0.0.1:8000/mask-text", requestOptions);
+        const data= await response.json();
+
+        if(!response.ok){
+            setError(data.detail);
+            setNavigate(false);
+        }
+        else{
+            //setMasked(data)
+            setNavigate(true);
+        }
+    };
+
+    const submitCategories = async() => {
+
+    };
+
     const handleClick = useNavigate()
 
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
@@ -25,10 +66,19 @@ function Anonymity(){
         console.log(Location);
         console.log(Event);
         console.log(Medical);
-    }
+        submitText();
+    };
 
     return (
         <>
+            <Button onClick={checkLogout}>Logout</Button>
+            { Logout &&
+                <div>
+                    <p>Are you sure you want to logout?</p>
+                    <button onClick={handleLogout}>Yes</button>
+                    <button onClick={() => setLogout(false)}>No</button>
+                </div>
+            }
             <h2>Level of Anonymity</h2>
                 <form method="post" onSubmit={handleSubmit}>
                 <div id="anon">
@@ -108,9 +158,11 @@ function Anonymity(){
                     </div>
                     <div id="buttons">
                         <button type="submit">Submit</button>
+                        { Navigate &&
                         <Link to="/NEROutput">
                             <div><Button onClick={() => {handleClick("/")}}>Next</Button></div>
                         </Link>
+                        }
                     </div>
                 </form>
 
