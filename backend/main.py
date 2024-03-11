@@ -2,9 +2,6 @@ from typing import Union, Annotated
 
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
-from fastapi.middleware.cors import CORSMiddleware
-
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -21,22 +18,12 @@ import firebase_admin
 from firebase_admin import credentials, firestore, exceptions
 
 from latest import mask
+
 app = FastAPI()
+global session
 
-origins = [
-    "http://localhost:5173",
-    "localhost:5173/"
-]
-
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
+mask_level=1
+session=mask(mask_level)
 # Load environment variables from .env file
 load_dotenv()
 
@@ -106,12 +93,12 @@ def register(user: RegisteringUser):
     # Register this user
     # Hash password
     db_user = UserInDB(
-        **user.model_dump(),
+        **user.dict(),
+        register_time = datetime.now(),
         hashed_password = get_password_hash(user.password)
     )
-    db_user.register_time = datetime.now()
 
-    db.collection('users').document(db_user.username).set(db_user.model_dump())
+    db.collection('users').document(db_user.username).set(db_user.dict())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
 
@@ -282,54 +269,51 @@ async def get_inference(payload):
         )
 
     return res_json
-
 # @Dipen: insert your masking code here
 @app.post("/mask-text")
 async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_active_user)]):
     inference_res = await get_inference({"inputs": text})
-
-    session=mask()
-    session.change_sentence(text) #this is using spacey. Needs to be changed
+    #mask_level=1
+    #session=mask(mask_level) #
+    print(inference_res[0])
+    masked_sentence=session.mask_sentence(text,inference_res) #this will mask the text
     
     ###
     mask_data = MaskData(
         input = text,
         entities = [InferenceEntity(**entity_dict) for entity_dict in inference_res],
 
-        output = session.get_maskedsentence()  # This is using spacey and is simply a placeholder. Will be changed
+        output = masked_sentence 
     )
 
     print(mask_data)
 
     # Store masking information in db
-    modelresponse=model_reponse(session)#calls the model reponse function
+    #modelresponse=session.get_response()
 
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
 
     history_res = await store_mask_history(mask_data, current_user)
 
     # Return masked text to frontend
+    #mask_data contains the mask info
+    #session is the global object variable that is used to run the functions inside of the mask class
     if history_res is None:
         return {'interfence_result': inference_res,
-                'masked_model':modelresponse["Response_Message"], #from gpt
-                'unmasked_model':modelresponse["Orignal_Message"] #from gpt and unmasked by the tool
+                'masked_input':mask_data,
+                'masker':session
                 }
     else:
         return {**history_res, 
                 'inference_result': inference_res,
-                'masked_model':modelresponse["Response_Message"], #from gpt
-                'unmasked_model':modelresponse["Orignal_Message"] #from gpt and unmasked by the tool
-                }
+                'masked_input':mask_data,
+                'masker':session
+        }
 
-#no way to run this using the post request as of right now 
-#as the object of the mask class is never returned
-#It should run in the above post request as it will call this function
 @app.post("/run-model")
-async def model_reponse(current_session: mask): 
-    #will give a dictionary with:
-    # ["Reponse_Message"]
-    # ["Orignal_Message"]
-    return current_session.get_response()
+async def model_reponse(): 
+
+    return session.get_response()
 
     
     

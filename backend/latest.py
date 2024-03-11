@@ -3,7 +3,8 @@
 import os
 import openai
 
-openai.api_key = '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'
+API_KEY= os.getenv("LLM_KEY")
+openai.api_key =  API_KEY #get from .env
 
 import spacy
   
@@ -11,25 +12,33 @@ nlp = spacy.load('en_core_web_sm')
 
 #the levels of masking
 class mask:
-    
+    #things to mask:
+    #City
+    #CompanyName
+    #Currency
+    #Date
+    #Email
+    #FirstName
+    #Lastname
+    #Middlename
+    #SSN
     #the levels of masking
     options={
-        "level1":["PERSON"],
-        "level2":["ORG","PERSON"],
-        "level3":["ORG","PERSON","DATE","GPE"],
-        "level4":["ORG","PERSON","DATE","EVENT"],
-        "level5":["ORG","PERSON","DATE","EVENT","FAC"],
+        "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN"],
         "custom":[]
     }
 
     #this dictionary will store the replacement words for each category
     replace={
-        "PERSON":["david","bill","emily","john","robert"],
-        "ORG":["CompanyA","CompanyB","CompanyC"],
-        "Date":["january 1st","january 2nd", "january 3rd", "january 4th"],
-        "GPE":["Toronto","Ottawa", "Montreal", "Vancouver"],
-        "EVENT":["Event A","Event B", "Event C", "Event D"],
-        "FAC":["hello1","hello2"]
+        "FIRSTNAME":["david","bill","emily","john","robert"],
+        "COMPANYNAME":["CompanyA","CompanyB","CompanyC"],
+        "DATE":["DATE A","Date B","DATE C","january 1st","january 2nd", "january 3rd", "january 4th"],
+        "CITY":["City A","City B","Toronto","Ottawa", "Montreal", "Vancouver", "CALGARY"],
+        "SSN":["99-999-999"],
+        "EMAIL":["hello@gmail.com","who@yahoo.com"],
+        "LASTNAME":["Brown","Willson"],
+        "CURRENCY":["CURRENCY A","CURRENCY B","CURRENCY C"],
+        "MIDDLENAME":["James,Micheal,Grace,Ann"]
     }
 
     #this dictionary will store the original enitity and what it was masked to. good for mapping back
@@ -40,12 +49,15 @@ class mask:
 
     #this dictionary will store how many times each entity has been used
     usecount={
-        "PERSON":0,
-        "ORG":0,
-        "Date":0,
-        "GPE":0,
-        "EVENT":0,
-        "FAC":0
+        "FIRSTNAME":0,
+        "COMPANYNAME":0,
+        "DATE":0,
+        "CITY":0,
+        "EMAIL":0,
+        "CURRENCY":0,
+        "SSN":0,
+        "MIDDLENAME":0,
+        "LASTNAME":0
     }
 
 
@@ -55,45 +67,43 @@ class mask:
         "Type":[]
     }
 
-    def __init__(self):
+    def __init__(self,mode,**kwargs):
         #initalize these to nothing
-        self.sentence=""
-        self.level=1
-        self.masklevel=self.options["level1"]
-        
-        self.masked_sentence=""
+        self.mode=mode
+        if(mode==1):
+            self.masklevel=self.options["default"]
+        else:
+            custom_options=kwargs.get('custom',None)
+            self.options["custom"]=[custom_options]
+            self.masklevel=self.options["custom"]
     
-    def change_sentence(self,input_sentence):
+    def mask_sentence(self,input_sentence,inference_res):
         self.sentence=input_sentence
 
         sentence=self.sentence
-
-        doc = nlp(sentence)
-
-        #print(nlp.get_pipe('ner').labels)
-        #this will mask the sentence and give masked sentence as sentence1
-        for ent in doc.ents:
-            print(ent.text, ent.start_char, ent.end_char, ent.label_)
+        
+        for ent in inference_res:
+            
             for label in self.masklevel:
                 
-                if(ent.label_==label):
-                    if(ent.text not in self.store["original"]):
-                        count=sentence.count(ent.text)
+                if(ent["entity_group"]==label):
+                    if(ent["word"] not in self.store["original"]):
+                        count=sentence.count(ent["word"])
                         for y in range(count):
-                            sentence=sentence.replace(ent.text,self.replace[label][self.usecount[label]])
+                            sentence=sentence.replace(ent["word"],self.replace[label][self.usecount[label]])
 
-                        self.store["original"].append(ent.text)
+                        self.store["original"].append(ent["word"])
                         self.store["masked"].append(self.replace[label][self.usecount[label]])
                         self.usecount[label]+=1
                         
                     else:
-                        count=sentence.count(ent.text)
+                        count=sentence.count(ent["word"])
                         for y in range(count):
-                            sentence=sentence.replace(ent.text,self.store["masked"][self.store["original"].index(ent.text)])
+                            sentence=sentence.replace(ent["word"],self.store["masked"][self.store["original"].index(ent["word"])])
         
         #change the masked sentence
         self.masked_sentence=sentence
-
+        return sentence
 
     def get_sentence(self):
         return self.sentence
@@ -101,8 +111,15 @@ class mask:
     def get_masklevel(self):
         return self.level
 
-    def change_masklevel(self,level):
-        self.level=level
+    def change_masklevel(self,mode,**kwargs):
+
+        self.mode=mode
+        if(mode==1):
+            self.masklevel=self.options["default"]
+        else:
+            custom_options=kwargs.get('custom',None)
+            self.options["custom"]=[custom_options]
+            self.masklevel=self.options["custom"]
 
     def get_maskedsentence(self):
         return self.masked_sentence
@@ -133,13 +150,11 @@ class mask:
                     og=og.replace(strings,self.store["original"][self.store["masked"].index(masked)]+"'s")
 
         final_output={
-                      "Reponse_Message":response_message,
+                      "Response_Message":response_message,
                       "Orignal_Message":og
                     }
 
         return final_output
-
-
 
 
 
@@ -148,7 +163,7 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-p1=mask()
+p1=mask(1)
 
 @app.get("/functions/get_response")
 async def root():
