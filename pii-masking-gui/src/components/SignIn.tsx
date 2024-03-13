@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -16,7 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { EventRepeat } from '@mui/icons-material';
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface SignInFormState {
   username: string;
@@ -26,15 +26,23 @@ interface SignInFormState {
 const SignIn: React.FC = () => {
   // Used to redirect user
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Define state for username and password
+  // Define states
   const [formData, setFormData] = useState<SignInFormState>({
     username: '',
     password: '',
   });
-
-  // Define state for error message
   const [error, setError] = useState<string>('');
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
+
+  // TODO: Test if this works!
+  useEffect(() => {
+    console.log("log in page will redirect to " + location.pathname);
+
+    // Store the current location before redirecting to login
+    setRedirectTo(location.pathname);
+  }, [location]);
 
   // Event handler to update form data when username changes
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,11 +61,10 @@ const SignIn: React.FC = () => {
     const loginSuccess = await authenticateUser(formData.username, formData.password);
 
     if (loginSuccess) {
-      // Redirect to the home page if login was successful
-      navigate('/');
+        redirectTo ? navigate(redirectTo) : navigate('/');
     } else {
       // Display error message
-
+      setError('Authentication error. Try again.');
     } 
   };
 
@@ -81,12 +88,14 @@ const SignIn: React.FC = () => {
       }
   
       const data = await response.json();
-      // Handle the response data, which may include an access token or other information
+
+      // Store JWT in local storage
+      localStorage.setItem("jwtToken", data.access_token);
+
       console.log('Authentication successful:', data);
       return true;
     } catch (error: any) {
       console.error('Authentication error:', error.message);
-      setError('Authentication error. Try again.');
       return false;
     }
   }
