@@ -2,6 +2,9 @@ from typing import Union, Annotated
 
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -18,6 +21,21 @@ import firebase_admin
 from firebase_admin import credentials, firestore, exceptions
 
 app = FastAPI()
+
+# Allow requests from frontend running on different origin
+origins = [
+    "http://localhost:5173",
+    "localhost:5173/"
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load environment variables from .env file
 load_dotenv()
