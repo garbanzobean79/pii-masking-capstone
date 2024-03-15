@@ -2,9 +2,11 @@
 
 import os
 import openai
+from dotenv import load_dotenv
+load_dotenv()
 
-API_KEY= os.getenv("LLM_KEY")
-openai.api_key =  API_KEY #get from .env
+OPENAI_API_KEY= os.getenv("OPENAI_API_KEY")
+openai.api_key = OPENAI_API_KEY #get from .env
 
 import spacy
   
@@ -23,6 +25,8 @@ class mask:
     #Middlename
     #SSN
     #the levels of masking
+    sentence=""
+    masked_sentence=""
     options={
         "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN"],
         "custom":[]
@@ -164,7 +168,8 @@ from fastapi import FastAPI
 app = FastAPI()
 
 p1=mask(1)
-
+#p1.mask_sentence("hello my name is bill")
+p1.get_response()
 @app.get("/functions/get_response")
 async def root():
     return {"message": p1.get_response()}
@@ -186,6 +191,6 @@ async def root():
 
 @app.post("/functions/change_sentence")
 async def root(sentence: str):
-    p1.change_sentence(sentence)
+    p1.mask_sentence(sentence)
     return {"message": p1.get_maskedsentence()}
 
