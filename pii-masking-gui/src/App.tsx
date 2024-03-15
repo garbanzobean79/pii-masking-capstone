@@ -1,27 +1,40 @@
 import Anonymity from "./components/Anonymity";
-import Start from "./components/Start";
+import Home from "./components/Home";
 import NEROutput from "./components/NEROutput";
 import Signup from "./components/Signup";
+import SignIn from "./components/SignIn";
+import MaskingHistory from "./components/MaskingHistory";
+import NavBar from "./components/NavBar";
 
 import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
 
 import {UserProvider} from "./context/UserContext";
 
-function App(){
+// TODO: add guarded routes so that when a user signs out 
+//          on a page that requires authentication, they will be
+//          redirected to the home page
+//      EX:
+        // <Route path="/dashboard">
+        //   {isAuthenticated ? <DashboardPage /> : <Redirect to="/login" />}
+        // </Route>
 
+function App(){
     return( 
         <>
+            <UserProvider>
             <Router>
-                <UserProvider>
+                <NavBar></NavBar>
                 <Routes>
-                    <Route path="/" element={<Start/>}/>
-                    <Route path="/EntitySelect" element={<Anonymity/>}/>
-                    <Route path="/NEROutput" element = {<NEROutput/>}/>
+                    <Route path="/" element={<Home/>}/>
+                    <Route path="/masking" element={<Anonymity/>}/>
                     <Route path="/Signup" element = {<Signup/>}/>
+                    <Route path="/sign-in" element = {<SignIn/>}/>
+                    <Route path="/masking-history" element = {<MaskingHistory/>}/>
                 </Routes>
-                </UserProvider>
             </Router>
+            </UserProvider>
         </>
+
     );
 }
 

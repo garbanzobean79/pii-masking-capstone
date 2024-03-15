@@ -5,6 +5,9 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from fastapi.middleware.cors import CORSMiddleware
 
+
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -22,6 +25,7 @@ from firebase_admin import credentials, firestore, exceptions
 
 app = FastAPI()
 
+# Allow requests from frontend running on different origin
 origins = [
     "http://localhost:5173",
     "localhost:5173/"
