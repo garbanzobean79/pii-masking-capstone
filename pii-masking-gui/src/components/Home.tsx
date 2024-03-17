@@ -19,11 +19,8 @@ function Home(){
         <>
             
             <Container maxWidth="md">
-                <Typography variant="h5">PII Masking Capstone</Typography>
-                <Button variant="contained">Next</Button>
-                <Button component={Link} to="/masking-history" color="primary" variant="contained">
-                    Masking History
-                </Button>
+                <Typography variant="h5" >PII Masking Capstone</Typography>
+                <Typography paragraph>App description</Typography>
             </Container>
         </>
     );

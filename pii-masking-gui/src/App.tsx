@@ -6,15 +6,8 @@ import SignIn from "./components/SignIn";
 import MaskingHistory from "./components/MaskingHistory";
 import NavBar from "./components/NavBar";
 
-import {BrowserRouter as Router, Routes, Route} from "react-router-dom";
-
-// TODO: add guarded routes so that when a user signs out 
-//          on a page that requires authentication, they will be
-//          redirected to the home page
-//      EX:
-        // <Route path="/dashboard">
-        //   {isAuthenticated ? <DashboardPage /> : <Redirect to="/login" />}
-        // </Route>
+import {BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { isTokenExpired } from "./services/authService";
 
 function App(){
     return( 
@@ -27,7 +20,17 @@ function App(){
                     <Route path="/NEROutput" element = {<NEROutput/>}/>
                     <Route path="/Signup" element = {<Signup/>}/>
                     <Route path="/sign-in" element = {<SignIn/>}/>
-                    <Route path="/masking-history" element = {<MaskingHistory/>}/>
+                    <Route
+                        path="/masking-history"
+                        element={
+                            isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
+                                console.log("here"),
+                                <Navigate to="/sign-in" state={{redirectTo:"/masking-history"}} /> 
+                            ) : (
+                                <MaskingHistory />
+                            )
+                        }
+                    />
                 </Routes>
             </Router>
         </>
