@@ -16,7 +16,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { EventRepeat } from '@mui/icons-material';
 
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, redirect } from 'react-router-dom';
 
 interface SignInFormState {
   username: string;
@@ -34,15 +34,6 @@ const SignIn: React.FC = () => {
     password: '',
   });
   const [error, setError] = useState<string>('');
-  const [redirectTo, setRedirectTo] = useState<string | null>(null);
-
-  // TODO: Test if this works!
-  useEffect(() => {
-    console.log("log in page will redirect to " + location.pathname);
-
-    // Store the current location before redirecting to login
-    setRedirectTo(location.pathname);
-  }, [location]);
 
   // Event handler to update form data when username changes
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +52,9 @@ const SignIn: React.FC = () => {
     const loginSuccess = await authenticateUser(formData.username, formData.password);
 
     if (loginSuccess) {
-        redirectTo ? navigate(redirectTo) : navigate('/');
+      console.log("navigating to", location.state?.redirectTo);
+      navigate('/masking-history');
+      navigate(location.state?.redirectTo || '/');
     } else {
       // Display error message
       setError('Authentication error. Try again.');
@@ -90,7 +83,7 @@ const SignIn: React.FC = () => {
       const data = await response.json();
 
       // Store JWT in local storage
-      localStorage.setItem("jwtToken", data.access_token);
+      sessionStorage.setItem("jwtToken", data.access_token);
 
       console.log('Authentication successful:', data);
       return true;
