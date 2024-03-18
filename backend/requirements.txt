@@ -7,7 +7,6 @@ pydantic==2.6.3
 python-dotenv==1.0.1
 python_jose==3.3.0
 Requests==2.31.0
-spacy==3.6.1
 annotated-types==0.6.0
 anyio==4.2.0
 bcrypt==4.1.2
@@ -20,7 +19,6 @@ click==8.1.7
 cryptography==42.0.2
 ecdsa==0.18.0
 exceptiongroup==1.2.0
-fastapi==0.109.0
 firebase-admin==6.4.0
 google-api-core==2.16.1
 google-api-python-client==2.116.0
@@ -39,18 +37,14 @@ httplib2==0.22.0
 httptools==0.6.1
 idna==3.6
 msgpack==1.0.7
-passlib==1.7.4
 proto-plus==1.23.0
 protobuf==4.25.2
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pycparser==2.21
-pydantic==2.6.0
 pydantic_core==2.16.1
 PyJWT==2.8.0
 pyparsing==3.1.1
-python-dotenv==1.0.1
-python-jose==3.3.0
 python-multipart==0.0.7
 PyYAML==6.0.1
 requests==2.31.0
