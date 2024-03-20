@@ -2,6 +2,9 @@ from typing import Union, Annotated
 
 from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+
+from fastapi.middleware.cors import CORSMiddleware
+
 from pydantic import BaseModel
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -18,6 +21,21 @@ import firebase_admin
 from firebase_admin import credentials, firestore, exceptions
 
 app = FastAPI()
+
+# Allow requests from frontend running on different origin
+origins = [
+    "http://localhost:5173",
+    "localhost:5173/"
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -238,7 +256,7 @@ async def store_mask_history(mask_data: MaskData, user: User):
     doc_ref = col_ref.document(datetime.now().strftime('%m-%d-%Y %H:%M:%S'))
 
     try:
-        res = doc_ref.set(mask_data.model_dump())
+        res = doc_ref.set(mask_data.model_dump() | {'created_at': datetime.now()})
     except exceptions.FirebaseError as e:
         print("Error setting document:", e)
         return {'error': 'There was an error in storing this masking instance to your masking history.'}
@@ -254,7 +272,7 @@ async def get_inference(payload):
     if 'error' in res_json and 'estimated_time' in res_json:
         raise HTTPException(
             status_code=503, 
-            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {response['estimated_time']}",
+            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {res_json['estimated_time']}",
             headers={'Retry-After': res_json['estimated_time']}
         )
     elif 'error' in res_json:
@@ -287,6 +305,26 @@ async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_
     else:
         return {**history_res, 'inference_result': inference_res}
 
+@app.get("/masking-history")
+async def get_mask_history(current_user: Annotated[str, Depends(get_current_active_user)]):
+
+    # Get masking history for this user
+    # TODO: change such that only the most recent x documents are retrieved
+    try:
+        col_ref = db.collection(f'users/{current_user.username}/mask_history')
+        query = col_ref.order_by('created_at', direction=firestore.Query.ASCENDING)
+        docs = col_ref.stream()
+
+        documents = []
+        for doc in docs:
+            document_data = doc.to_dict()
+            document_data['id'] = doc.id
+            documents.append(document_data)
+        
+        return documents
+    except Exception as e:
+        print(f"Error fetching documents: {e}")
+        return None
 
 ######
 # Store fine-tuning data from user

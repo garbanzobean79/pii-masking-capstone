@@ -51,7 +51,7 @@ h2{
   font-style: italic;
 }
 
-button {
+/* button {
   border: 1px solid;
   padding: 0.6em 3em;
   font-size: 1.5em;
@@ -61,7 +61,7 @@ button {
   background-color: #CDC7BA;
   cursor: pointer;
   transition: border-color 0.25s;
-}
+} */
 
 button:hover {
   background-color: black;
@@ -94,7 +94,7 @@ span:hover{
   color: black;
 }
 
-#buttons1{
+/* #buttons1{
   display: flex;
   flex-direction: row;
   justify-content: center;
@@ -102,7 +102,7 @@ span:hover{
   width: 1000px;
   margin-top: 50px;
   gap: 15%;
-}
+} */
 
 #buttons2{
   display: flex;
