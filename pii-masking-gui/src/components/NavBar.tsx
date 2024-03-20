@@ -11,7 +11,6 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
-import AdbIcon from '@mui/icons-material/Adb';
 import { useNavigate } from 'react-router-dom';
 import { isTokenExpired } from '../services/authService';
 
@@ -35,14 +34,8 @@ function NavBar() {
     setAnchorElUser(event.currentTarget);
   };
 
-  const handleClick= useNavigate();
-
   const handleCloseNavMenu = (page: string) => {
     setAnchorElNav(null);
-    if(page=='Masking')
-      handleClick("/masking");
-    else if(page=='Home')
-      handleClick("/");
   };
 
   const handleCloseUserMenu = (event: React.MouseEvent<HTMLLIElement>) => {

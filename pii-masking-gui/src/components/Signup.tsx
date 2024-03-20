@@ -1,7 +1,6 @@
 import {useState, ChangeEvent, useContext} from "react";
 import  {Link, useNavigate} from 'react-router-dom';
 
-import {UserContext} from "../context/UserContext";
 import ErrorMessage from "./ErrorMessage";
 
 function Signup(){
@@ -11,7 +10,6 @@ function Signup(){
     const [Name, setName]= useState("");
     const [Password, setPassword]= useState("");
     const [Confirmation, setConfirmation]= useState("");
-    const [, setToken]= useContext(UserContext);
     const [Error, setError]= useState("");
     const [Message, setMessage]= useState(false);
     const [Navigate, setNavigate]= useState(false);
@@ -31,7 +29,6 @@ function Signup(){
             setError(data.detail);
         }
         else{
-            setToken(data.access_token);
             setNavigate(true);
         }
     }

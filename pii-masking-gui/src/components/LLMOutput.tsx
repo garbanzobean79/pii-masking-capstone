@@ -16,10 +16,10 @@ import MaskingConfirmation from './MaskingConfirmation';
 
 import { Link, useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
-import { useState, ChangeEvent, useContext} from "react";
+import { useState, ChangeEvent} from "react";
 
-import {UserContext} from "../context/UserContext";
 import { Container } from '@mui/material';
+import React from "react";
 
 interface Props {
     disabled2: boolean;
@@ -27,32 +27,39 @@ interface Props {
 
 function LLMOutput({disabled2}: Props){
 
+    const [output, setOutput]= useState("");
+    const [error, setError]= useState<String>("");
 
-    const [Error, setError]= useState("");
-    const [, setToken]= useContext(UserContext);
-
-    const submitText= async() => {
-
-        const requestOptions = {
-            method: "POST",
-                headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({text: Text})
-
-        };
-        const response= await fetch("http://127.0.0.1:8000/mask-text", requestOptions);
-        const data= await response.json();
-
+    const runModel= async() => {
+        try{
+            const response= await fetch('http://127.0.0.1:8000/run-model', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                }
+            });
+        
         if(!response.ok){
-            setError(data.detail);
+            throw new Error('Failed to mask text');
+
         }
-        else{
-            console.log(data);
+        const data= await response.json();
+        console.log("fetched data", data.Response_Message);
+        setOutput(data.Response_Message);
+    }
+        catch(error:any){
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("An unknown error has occured.");
+            }
+            console.log(error);
         }
     };
 
     const handleSubmit3 = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        submitText();
+        runModel();
     };
 
     return (

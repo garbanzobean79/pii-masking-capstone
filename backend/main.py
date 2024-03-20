@@ -20,6 +20,8 @@ import requests
 import firebase_admin
 from firebase_admin import credentials, firestore, exceptions
 
+from latest import mask
+
 app = FastAPI()
 
 # Allow requests from frontend running on different origin
@@ -37,6 +39,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+global session
+
+mask_level=1
+session=mask(mask_level)
 # Load environment variables from .env file
 load_dotenv()
 
@@ -282,28 +288,46 @@ async def get_inference(payload):
         )
 
     return res_json
-
 # @Dipen: insert your masking code here
 @app.post("/mask-text")
 async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_active_user)]):
     inference_res = await get_inference({"inputs": text})
-
+    #mask_level=1
+    #session=mask(mask_level) #
+    print(inference_res[0])
+    masked_sentence=session.mask_sentence(text,inference_res) #this will mask the text
+    
+    ###
     mask_data = MaskData(
         input = text,
         entities = [InferenceEntity(**entity_dict) for entity_dict in inference_res],
-        output = "placeholder"  # place masked output here
+
+        output = masked_sentence 
     )
 
     print(mask_data)
 
     # Store masking information in db
+    #modelresponse=session.get_response()
+
+    #modelreponse is a dictionary with the original and the masked reponse from the gpt model
+
     history_res = await store_mask_history(mask_data, current_user)
 
     # Return masked text to frontend
+    #mask_data contains the mask info
+    #session is the global object variable that is used to run the functions inside of the mask class
     if history_res is None:
-        return {'interfence_result': inference_res}
+        return {'interfence_result': inference_res,
+                'masked_input':mask_data,
+                'masker':session
+                }
     else:
-        return {**history_res, 'inference_result': inference_res}
+        return {**history_res, 
+                'inference_result': inference_res,
+                'masked_input':mask_data,
+                'masker':session
+        }
 
 @app.get("/masking-history")
 async def get_mask_history(current_user: Annotated[str, Depends(get_current_active_user)]):
@@ -325,7 +349,13 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
     except Exception as e:
         print(f"Error fetching documents: {e}")
         return None
+@app.post("/run-model")
+async def model_reponse(): 
 
+    return session.get_response()
+
+    
+    
 ######
 # Store fine-tuning data from user
 ######

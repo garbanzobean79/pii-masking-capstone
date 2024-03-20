@@ -25,7 +25,6 @@ To generate a random secret key to be used to sign JWT tokens, use the command:
 ```
 openssl rand -hex 32
 ```
-
 To generate a random secret key to be used to sign JWT tokens, use the command:
 ```
 openssl rand -hex 32

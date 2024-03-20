@@ -11,70 +11,86 @@ import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
-import { useState, ChangeEvent, useContext} from "react";
+import { useState, ChangeEvent, useEffect} from "react";
+import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
-import {UserContext} from "../context/UserContext";
 import { Container } from '@mui/material';
+import React from "react";
 
 interface Props{
     Checked: boolean;
     setChecked: (value: boolean) => void;
-    Name: boolean;
     setName: (value: boolean) => void;
-    City: boolean;
     setCity: (value: boolean) => void;
-    Date: boolean;
     setDate: (value: boolean) => void;
-    Email: boolean;
     setEmail: (value: boolean) => void;
-    SSN: boolean;
     setSSN: (value: boolean) => void;
-    Company: boolean;
     setCompany: (value: boolean) => void;
-    Currency: boolean;
     setCurrency: (value: boolean) => void;
     setDisabled1: (value: boolean) => void;
+    setMasked: (value: string) => void;
+    masked_entities: string [][];
 }
 
-function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate, 
-    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, setDisabled1, Checked}: Props){
-    const [Error, setError] = useState("");
-    const [, setToken] = useContext(UserContext);
+function EntityMasking({setChecked, setName, setCity, setDate, 
+    setEmail, setSSN, setCompany, setCurrency, setDisabled1, Checked, setMasked, masked_entities}: Props){
+    const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
 
+    const navigate = useNavigate();
+
     const submitText= async() => {
+        try{
+            const response= await fetch(`http://127.0.0.1:8000/mask-text?text=${encodeURIComponent(Text)}`, {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`
+                }
+    
+            });
 
-        const requestOptions = {
-            method: "POST",
-                headers: {"Content-Type": "application/json"},
-            body: JSON.stringify({text: Text})
+            if(!response.ok){
+                throw new Error('Failed to mask text');
 
-        };
-        const response= await fetch("http://127.0.0.1:8000/mask-text", requestOptions);
-        const data= await response.json();
-
-        if(!response.ok){
-            setError(data.detail);
-        }
-        else{
+            }
+            const data= await response.json();
             console.log(data);
-        }
-    };
+            console.log("fetched data", data.masker.masked_sentence);
+            setMasked(data.masker.masked_sentence);
+            /*var i:any
+            for(i in data.masked_input.entities){
+                console.log(data.masker.masked_sentence.substring(i.start+1, i.end+1));
+                masked_entities.push([i.word, data.masker.masked_sentence.substring(i.start+1, i.end+1)]);
+            }*/
 
-    const submitCategories= async() => {
-        const requestOptions = {
-            method: "POST",
-                header: {"Content-Type": ""},
-            body: ''
-        };
-        const response= 1;
-        const data= 1;
+        }
+
+        catch(error:any){
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("An unknown error has occured.");
+            }
+            console.log(error);
+        }
+
     };
 
     const handleSubmit1 = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
+        //submitCategories;
         submitText();
         setDisabled1(false);
+        if(Checked == false){
+            setName(true)
+            setCity(true);
+            setCompany(true);
+            setCurrency(true);
+            setEmail(true);
+            setDate(true);
+            setSSN(true);
+        }
     };
 
     return(
@@ -108,8 +124,8 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
                                     aria-labelledby="demo-row-radio-buttons-group-label"
                                     name="row-radio-buttons-group"
                                 >
-                                    <FormControlLabel value="female" control={<Radio />} label="Default" onClick={() => setChecked(false)}/>
-                                    <FormControlLabel value="male" control={<Radio />} label="Custom" onClick={() =>  setChecked(true)}/>
+                                    <FormControlLabel value="Default" control={<Radio />} label="Default" onClick={() => setChecked(false)}/>
+                                    <FormControlLabel value="Custom" control={<Radio />} label="Custom" onClick={() =>  setChecked(true)}/>
                                 </RadioGroup>
                         </FormControl>
                         { Checked &&

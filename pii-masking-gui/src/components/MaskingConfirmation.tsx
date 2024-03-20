@@ -14,25 +14,29 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
+import React from "react";
 
 import { Link, useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
-import { useState, ChangeEvent, useContext} from "react";
+import { useState, ChangeEvent} from "react";
 
-import {UserContext} from "../context/UserContext";
 import { Container } from '@mui/material';
 
 interface Props{
     disabled1: boolean;
-    Entity: string;
-    setEntity: (value: string) => void;
+    Entity: boolean[];
     setDisabled2: (value: boolean) => void;
+    Masked: string;
+    masked_entity: string[][]
 }
 
-function MaskingConfirmation({disabled1, setDisabled2, Entity, setEntity}: Props){
+function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
 
     const [Error, setError]= useState("");
-    const [, setToken]= useContext(UserContext);
+    const [NewEntity, setNew]= useState("");
+    const [add, setAdd]= useState(false);
+
+    let Entities: string [] = []
 
     const submitText= async() => {
 
@@ -53,6 +57,10 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, setEntity}: Props
         }
     };
 
+    const reMask= (e: ChangeEvent<HTMLFormElement>) => {
+
+    };
+
     const handleSubmit2 = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
         submitText();
@@ -60,7 +68,8 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, setEntity}: Props
     };
 
     const addEntity = () => {
-
+        Entities.push(NewEntity);
+        setNew("");
     };
 
     return(
@@ -73,31 +82,57 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, setEntity}: Props
                     <Typography>Confirm Masking</Typography>
                 </AccordionSummary>
                 <AccordionDetails>
-                    <Container sx={{ border: '2px solid black'}}>
+                    <Container sx={{display: 'flex', flexDirection: 'row', gap: '5%'}}>
+                    <Container>
                         <Typography>Masking Results</Typography>
+                        <Typography>{Masked}</Typography>
                     </Container>
-                    <Container sx={{ border: '2px solid black'}}>
+                    <Container sx={{ border: '1px solid black'}}>
                         <Typography>Entities</Typography>
                     </Container>
-                    <Container  sx={{ border: '2px solid black'}}>
-                        <Typography>Did we miss an entity?</Typography>
-                        <Box sx={{ minWidth: 120 }}>
+                    </Container>
+                    <Container  sx={{ marginTop: "20px"}}>
+                        <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
+                        <Box sx={{display: 'flex', flexDirection: 'row', gap: '2%', margin: '20px'}}>
+                        <RadioGroup
+                                row
+                                aria-labelledby="demo-row-radio-buttons-group-label"
+                                name="row-radio-buttons-group"
+                                sx={{display:"flex", justifyContent: "center", alignItems: "center"}}
+                            >
+                                <FormControlLabel value="Add" control={<Radio />} label="Class" onClick={() => setAdd(true)}/>
+                        </RadioGroup>
+                        <Box sx={{ minWidth: 500 }}>
                             <FormControl fullWidth>
-                                <InputLabel id="demo-simple-select-label">Age</InputLabel>
+                                <InputLabel id="demo-simple-select-label">Entity Type</InputLabel>
                                 <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 value={Entity}
-                                label="Age"
+                                label="Entity Type"
                                 onChange={addEntity}
                                 >
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                                { Entity[0] &&
+                                <MenuItem value={"Name"}>Name</MenuItem> }
+                                { Entity[1] &&
+                                <MenuItem value={"City"}>City</MenuItem> }
+                                {Entity[2] &&
+                                <MenuItem value={"Date"}>Date</MenuItem>}
+                                {Entity[3] &&
+                                <MenuItem value={"Email"}>Email</MenuItem>}
+                                {Entity[4] &&
+                                <MenuItem value={"SSN"}>SSN</MenuItem>}
+                                {Entity[5] &&
+                                <MenuItem value={"Company"}>Company</MenuItem>}
+                                {Entity[6] &&
+                                <MenuItem value={"Currency"}>Currency</MenuItem>}
                                 </Select>
                             </FormControl>
                         </Box>
+                        <TextField id="entity" label="Enter text entity" variant="outlined" sx={{ minWidth: 300 }} onChange={(e) => {setNew(e.target.value)}}/>
+                        </Box>
                         <Button variant="contained" sx={{ margin: '20px'}} >Add entity</Button>
+                        <Button variant="contained" sx={{ margin: '20px'}} >Re Mask</Button>
                     </Container>
                     <Button variant="outlined" onClick={() => handleSubmit2} sx={{ margin: '50px' }}>Confirm</Button>
                 </AccordionDetails>
