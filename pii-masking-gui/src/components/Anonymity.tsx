@@ -1,119 +1,101 @@
-import { Link, useNavigate} from "react-router-dom";
-import Button from "./Button";
-import { useState, ChangeEvent} from "react";
+import EntityMasking from './EntityMasking';
+import MaskingConfirmation from './MaskingConfirmation';
+import LLMOutput from './LLMOutput';
+import {useState, useEffect} from "react";
+import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { isTokenExpired } from '../services/authService';
 
 function Anonymity(){
 
     const [Checked, setChecked]= useState(false); //Default, Custom
     const [Name, setName] = useState(false)
-    const [Organization, setOrganization]= useState(false)
-    const [Dates, setDates] = useState(false)
-    const [Location, setLocation]= useState(false)
-    const [Event, setEvent] = useState(false)
-    const [Medical, setMedical]= useState(false)
+    const [City, setCity]= useState(false)
+    const [Date, setDate] = useState(false)
+    const [Email, setEmail]= useState(false)
+    const [SSN, setSSN] = useState(false)
+    const [Company, setCompany]= useState(false)
+    const [Currency, setCurrency]= useState(false)
+    const [Masked, setMasked]= useState("");
+    const [disabled1, setDisabled1]= useState(true);
+    const [disabled2, setDisabled2]= useState(true);
+    const token= sessionStorage.getItem("jwtToken");
 
-    const [Text, setText] = useState("")
-    const handleClick = useNavigate()
+    const navigate = useNavigate();
 
-    const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        console.log(Checked);   
-        console.log(Text);
-        console.log(Name);
-        console.log(Organization);
-        console.log(Dates);
-        console.log(Location);
-        console.log(Event);
-        console.log(Medical);
-    }
+    let masked_entities: string[][] = []
+
+    useEffect(() => {
+        if (sessionStorage.getItem("jwtToken") == null) {
+            navigate('/sign-in');
+        } else {
+            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+        }
+
+    }, []);
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const requestOptions = {
+                method: "GET" ,
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: "Bearer " + token,
+                },
+            };
+
+            const response= await fetch("http://127.0.0.1:8000/users/me", requestOptions);
+        
+            if(!response.ok){
+                console.log("Error");
+            }
+        };
+        fetchUser();
+
+    }, [token]);
+
+
+    // TODO: replace with guarded route
+    useEffect(() => {
+        // Function to run when the component is loaded
+        console.log('Component loaded');
+    
+        // Check if the user is signed in'
+        console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
+        if (sessionStorage.getItem("jwtToken") == null) {
+            navigate('/sign-in');
+        } else {
+            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+        }
+
+    }, []);
+
+    let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
 
     return (
         <>
-            <h2>Level of Anonymity</h2>
-                <form method="post" onSubmit={handleSubmit}>
-                <div id="anon">
-                    <div className="form-check" id="custom">
-                        <label className="form-check-label">
-                            <input className="form-check-input" type="radio" name="Level" defaultChecked= {true} onClick={() => setChecked(false)}/>
-                        Default</label>
-                        <label className="form-check-label">
-                            <input className="form-check-input" type="radio" name="Level" onClick={() =>  setChecked(true)}/>
-                        Custom</label>
-                    </div>
-                    { Checked && 
-                        <div id="checks">
-                            <div id="icon">
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Name" onChange={(e) => {setName(e.target.checked)}}/>
-                                    Name</label>
-                                </div>
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Organization" onChange={(e) => {setOrganization(e.target.checked)}}/>
-                                    Organization</label>
-                                </div>
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Dates" onChange={(e) => {setDates(e.target.checked)}}/>
-                                    Dates</label>
-                                </div>
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Location" onChange={(e) => {setLocation(e.target.checked)}}/>
-                                    Location</label>
-                                </div>
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Event" onChange={(e) => {setEvent(e.target.checked)}}/>
-                                    Event</label>
-                                </div>
-                                <div id="cont">
-                                    <label className="form-check-label">
-                                        <input className="form-check-input" type="checkbox" name= "Med" onChange={(e) => {setMedical(e.target.checked)}}/>
-                                    Medical Information</label>
-                                </div>
-                            </div>
-                            <div id= "icons">
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all names</p>
-                                </div>
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all organizations</p>
-                                </div>
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all dates</p>
-                                </div>
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all locations</p>
-                                </div>
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all events</p>
-                                </div>
-                                <div id="info">
-                                <span>&#8505;</span>
-                                <p>NER model masks all personal medical information</p>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                    </div>
-                    <div className= "form-group" id="textbox">
-                        <textarea rows={10} cols={75} name="Input" placeholder=" Enter text here" onChange={(e) => {setText(e.target.value)}}></textarea>
-                    </div>
-                    <div id="buttons">
-                        <button type="submit">Submit</button>
-                        <Link to="/NEROutput">
-                            <div><Button onClick={() => {handleClick("/")}}>Next</Button></div>
-                        </Link>
-                    </div>
-                </form>
-
+            <EntityMasking 
+                Checked= {Checked}
+                setDisabled1={setDisabled1} 
+                setChecked={setChecked} 
+                setName={setName}
+                setCity={setCity}
+                setDate={setDate}
+                setEmail={setEmail}
+                setSSN={setSSN}
+                setCompany={setCompany}
+                setCurrency={setCurrency}
+                setMasked={setMasked}
+                masked_entities={masked_entities}
+                />
+            <MaskingConfirmation 
+            disabled1= {disabled1} 
+            setDisabled2={setDisabled2}
+            Entity={Entity}
+            Masked= {Masked}
+            masked_entity={masked_entities}
+            />
+            <LLMOutput disabled2= {disabled2} />
         </>
     );
 }

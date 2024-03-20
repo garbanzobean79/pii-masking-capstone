@@ -4,6 +4,8 @@ key.json
 
 .env
 
+/venv
+
 app.log
 
 __pycache__/
