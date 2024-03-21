@@ -8,9 +8,10 @@ import { Container } from '@mui/material';
 
 interface Props{
     masked_entities: string[][];
+    isVisible: boolean;
 }
 
-function MaskedEntities({masked_entities}: Props){
+function MaskedEntities({masked_entities, isVisible}: Props){
 
     return(
         <Container sx={{ border: '1px solid black'}}>
@@ -22,7 +23,7 @@ function MaskedEntities({masked_entities}: Props){
                                 | {value[0]} -&gt; {value[1]}{" "}
                         </Typography>
                         <Box>
-                        <IconButton aria-label="close" size= "small" sx={{border: '1px solid red'}}>
+                        <IconButton aria-label="close" size= "small" sx={{display: isVisible ? 'flex' : 'none', border: '1px solid red'}}>
                             <CloseIcon sx={{ fontSize: '10px', color: 'red'}}/>
                         </IconButton>
                         </Box>

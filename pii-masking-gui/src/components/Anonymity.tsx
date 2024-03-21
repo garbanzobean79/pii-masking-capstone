@@ -9,14 +9,14 @@ import { Output } from '@mui/icons-material';
 
 function Anonymity(){
 
-    const [Checked, setChecked]= useState(false); //Default, Custom
-    const [Name, setName] = useState(false)
-    const [City, setCity]= useState(false)
-    const [Date, setDate] = useState(false)
-    const [Email, setEmail]= useState(false)
-    const [SSN, setSSN] = useState(false)
-    const [Company, setCompany]= useState(false)
-    const [Currency, setCurrency]= useState(false)
+    const [Checked, setChecked]= useState<boolean>(false); //Default, Custom
+    const [Name, setName] = useState<boolean>(false)
+    const [City, setCity]= useState<boolean>(false)
+    const [Date, setDate] = useState<boolean>(false)
+    const [Email, setEmail]= useState<boolean>(false)
+    const [SSN, setSSN] = useState<boolean>(false)
+    const [Company, setCompany]= useState<boolean>(false)
+    const [Currency, setCurrency]= useState<boolean>(false)
     const [Masked, setMasked]= useState("");
     const [disabled1, setDisabled1]= useState(true);
     const [disabled2, setDisabled2]= useState(true);
@@ -27,7 +27,6 @@ function Anonymity(){
     const navigate = useNavigate();
 
     const [maskedEntities, setMaskedEntities] = useState<string[][]>([]);
-
 
     useEffect(() => {
         if (sessionStorage.getItem("jwtToken") == null) {
@@ -74,21 +73,19 @@ function Anonymity(){
 
     }, []);
 
-    let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
-
     return (
         <>
             <EntityMasking 
                 Checked= {Checked}
                 setDisabled1={setDisabled1} 
                 setChecked={setChecked} 
-                setName={setName}
-                setCity={setCity}
-                setDate={setDate}
-                setEmail={setEmail}
-                setSSN={setSSN}
-                setCompany={setCompany}
-                setCurrency={setCurrency}
+                setName={setName} Name={Name}
+                setCity={setCity} City={City}
+                setDate={setDate} Date={Date}
+                setEmail={setEmail} Email={Email}
+                setSSN={setSSN} SSN={SSN}
+                setCompany={setCompany} Company={Company}
+                setCurrency={setCurrency} Currency={Currency}
                 setMasked={setMasked}
                 setMaskedEntities= {setMaskedEntities}
                 setLoading={setLoading}
@@ -96,7 +93,6 @@ function Anonymity(){
             <MaskingConfirmation 
             disabled1= {disabled1} 
             setDisabled2={setDisabled2}
-            Entity={Entity}
             Masked= {Masked}
             Masked_Entities={maskedEntities}
             setOutput= {setOutput}

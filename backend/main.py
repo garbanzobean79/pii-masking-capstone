@@ -329,8 +329,15 @@ async def mask_text(text: str, mask_level: list[str], current_user: Annotated[st
         return {**history_res, 
                 'inference_result': inference_res,
                 'masked_input':mask_data,
-                'masker':session
+                'masker':session,
+                'entity_mask':entity_dic
         }
+
+#manual option here
+@app.post("/manual-mask")
+async def manual_mask(word: list[str], entity: list[str]):
+    
+    return session.manual_mask(word,entity)
 
 @app.get("/masking-history")
 async def get_mask_history(current_user: Annotated[str, Depends(get_current_active_user)]):

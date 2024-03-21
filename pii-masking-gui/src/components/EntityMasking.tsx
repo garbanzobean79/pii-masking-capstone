@@ -20,12 +20,19 @@ import React from "react";
 interface Props{
     Checked: boolean;
     setChecked: (value: boolean) => void;
+    Name: boolean;
     setName: (value: boolean) => void;
+    City: boolean;
     setCity: (value: boolean) => void;
+    Date: boolean;
     setDate: (value: boolean) => void;
+    Email: boolean;
     setEmail: (value: boolean) => void;
+    SSN: boolean;
     setSSN: (value: boolean) => void;
+    Company: boolean;
     setCompany: (value: boolean) => void;
+    Currency: boolean;
     setCurrency: (value: boolean) => void;
     setDisabled1: (value: boolean) => void;
     setMasked: (value: string) => void;
@@ -33,24 +40,25 @@ interface Props{
     setMaskedEntities: (value: string[][]) => void;
 }
 
-function EntityMasking({setChecked, setName, setCity, setDate, 
-    setEmail, setSSN, setCompany, setCurrency, setDisabled1, Checked, setMasked, setMaskedEntities, setLoading}: Props){
+function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate, 
+    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, setDisabled1, Checked, setMasked, setMaskedEntities, setLoading}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
     const masked_entity: string[][]= []
 
     const navigate = useNavigate();
 
-    const submitText= async() => {
+    async function submitText(Mask_Level: string[]) {
         setLoading(true);
         try{
             const response= await fetch(`http://127.0.0.1:8000/mask-text?text=${encodeURIComponent(Text)}`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`
-                }
-    
+                    'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Mask_Level)
             });
 
             if(!response.ok){
@@ -62,17 +70,18 @@ function EntityMasking({setChecked, setName, setCity, setDate,
             console.log("fetched data", data.masker.masked_sentence);
             setMasked(data.masker.masked_sentence);
             masked_entity.splice(0);
-            let Array_length= (data.masked_input.entities).length;
+            let Array_length= (data.entity_mask.original).length;
+            console.log(data.entity_mask);
+            console.log(Array_length);
             for(let i=0; i< Array_length; i++){
-                console.log("Input:", data.masked_input.entities[i].word);
-                console.log("Output:", data.masker.masked_sentence.substring(data.masked_input.entities[i].start+1, data.masked_input.entities[i].end+1));
+                console.log("Input:", data.entity_mask.original);
+                console.log("Output:", data.entity_mask.masked);
                 masked_entity.push([
-                    data.masked_input.entities[i].word,
-                    data.masker.masked_sentence.substring(data.masked_input.entities[i].start + 1, data.masked_input.entities[i].end + 1)
+                    data.entity_mask.original,
+                    data.entity_mask.masked
                 ]);
-                console.log(masked_entity);
             }
-
+            console.log(masked_entity);
             setMaskedEntities([...masked_entity]);
 
         }
@@ -88,20 +97,49 @@ function EntityMasking({setChecked, setName, setCity, setDate,
 
     };
 
-    const handleSubmit1 = (e: ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        //submitCategories;
-        submitText();
-        setDisabled1(false);
-        if(Checked == false){
-            setName(true)
-            setCity(true);
-            setCompany(true);
-            setCurrency(true);
-            setEmail(true);
-            setDate(true);
-            setSSN(true);
+        let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
+        let Mask_Level: string[]= [];
+        if (Checked) {
+            if (Name) {
+                Mask_Level.push("FIRSTNAME");
+                Mask_Level.push("LASTNAME");
+                Mask_Level.push("MIDDLENAME");
+            }
+            if (City) {
+                Mask_Level.push("CITY");
+            }
+            if (Date) {
+                Mask_Level.push("DATE");
+            }
+            if (Email) {
+                Mask_Level.push("EMAIL");
+            }
+            if (SSN) {
+                Mask_Level.push("SSN");
+            }
+            if (Company) {
+                Mask_Level.push("COMPANY");
+            }
+            if (Currency) {
+                Mask_Level.push("CURRENCY");
+            }
+        } else {
+            // Push all levels to Mask_Level
+            Mask_Level.push("FIRSTNAME");
+            Mask_Level.push("LASTNAME");
+            Mask_Level.push("MIDDLENAME");
+            Mask_Level.push("CITY");
+            Mask_Level.push("DATE");
+            Mask_Level.push("EMAIL");
+            Mask_Level.push("SSN");
+            Mask_Level.push("COMPANY");
+            Mask_Level.push("CURRENCY");
         }
+        console.log(Mask_Level);
+        submitText(Mask_Level);
+        setDisabled1(false);
         setLoading(false);
     };
 
@@ -116,7 +154,7 @@ function EntityMasking({setChecked, setName, setCity, setDate,
             </AccordionSummary>
             <AccordionDetails>
                 <Container maxWidth="md">
-                <form method="post" onSubmit={handleSubmit1}>
+                <form method="post" onSubmit={handleSubmit}>
                     <Container>
                     <TextField fullWidth
                         id="standard-multiline-static"
@@ -153,7 +191,7 @@ function EntityMasking({setChecked, setName, setCity, setDate,
                         </FormGroup>
                         }
                     </Container>
-                        <Button variant= "outlined" type= "submit" onClick={() => handleSubmit1} sx={{ margin: '20px'}}>Submit</Button>
+                        <Button variant= "outlined" type= "submit" onClick={() => handleSubmit} sx={{ margin: '20px'}}>Submit</Button>
                 </form>
                 </Container>
             </AccordionDetails>

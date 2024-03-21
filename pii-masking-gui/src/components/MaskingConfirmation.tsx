@@ -26,18 +26,18 @@ import { Container } from '@mui/material';
 
 interface Props{
     disabled1: boolean;
-    Entity: boolean[];
     setDisabled2: (value: boolean) => void;
     Masked: string;
     Masked_Entities: string[][];
     setOutput: (value: string) => void;
 }
 
-function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked, Masked_Entities, setOutput}: Props){
+function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, setOutput}: Props){
     const [error, setError]= useState("");
     const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
     const [add, setAdd]= useState(false);
+    const isVisible: boolean= true;
 
     const Entities: string [] = []
 
@@ -110,7 +110,7 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked, Masked_En
                 <AccordionDetails>
                     <Container sx={{display: 'flex', flexDirection: 'row', gap: '5%'}}>
                     <MaskingResults Masked= {Masked}/>
-                    <MaskedEntities masked_entities={Masked_Entities}/>
+                    <MaskedEntities masked_entities={Masked_Entities} isVisible={isVisible}/>
                     </Container>
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
@@ -133,20 +133,13 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked, Masked_En
                                 label="Entity Type"
                                 onChange={addEntity}
                                 >
-                                { Entity[0] &&
-                                <MenuItem value={"Name"} onClick={()=> setType("Name")}>Name</MenuItem> }
-                                { Entity[1] &&
-                                <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> }
-                                {Entity[2] &&
-                                <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>}
-                                {Entity[3] &&
-                                <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>}
-                                {Entity[4] &&
-                                <MenuItem value={"SSN"} onClick={()=> setType("SSN")}>SSN</MenuItem>}
-                                {Entity[5] &&
-                                <MenuItem value={"Company"} onClick={()=> setType("Company")}>Company</MenuItem>}
-                                {Entity[6] &&
-                                <MenuItem value={"Currency"} onClick={()=> setType("Currency")}>Currency</MenuItem>}
+                                <MenuItem value={"Name"} onClick={()=> setType("Name")}>Name</MenuItem> 
+                                <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> 
+                                <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>
+                                <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>
+                                <MenuItem value={"SSN"} onClick={()=> setType("SSN")}>SSN</MenuItem>
+                                <MenuItem value={"Company"} onClick={()=> setType("Company")}>Company</MenuItem>
+                                <MenuItem value={"Currency"} onClick={()=> setType("Currency")}>Currency</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
