@@ -17,19 +17,33 @@ function App(){
                 <NavBar></NavBar>
                 <Routes>
                     <Route path="/" element={<Home/>}/>
-                    <Route path="/masking-text" element={<Anonymity/>}/>
-                    <Route path="/Signup" element = {<Signup/>}/>
+                    <Route 
+                        path="/masking-text"
+                        element={
+                            isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
+                                console.log("jwtToken is expired"),
+                                <Navigate to="/sign-in" state={{redirectTo:"/masking-text"}} /> 
+                            ) : (
+                                <Anonymity/>
+                            )
+                        }
+                    />
+                    <Route path="/sign-up" element = {<Signup/>}/>
                     <Route path="/sign-in" element = {<SignIn/>}/>
-                    <Route
+                    {/* <Route
                         path="/masking-history"
                         element={
                             isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
-                                console.log("here"),
+                                console.log("jwtToken is expired, redirecting from masking-history to sign in"),
                                 <Navigate to="/sign-in" state={{redirectTo:"/masking-history"}} /> 
                             ) : (
                                 <MaskingHistory />
                             )
                         }
+                    /> */}
+                    <Route
+                        path="/masking-history"
+                        element= {<MaskingHistory />}
                     />
                 </Routes>
             </Router>

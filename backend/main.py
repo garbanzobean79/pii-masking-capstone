@@ -69,7 +69,9 @@ INFERENCE_HEADER = {"Authorization": f'Bearer {os.getenv("INFERENCE_TOKEN")}'}
 class User(BaseModel):
     username: str
     email: str | None = None
-    full_name: str | None = None
+    firstname: str | None = None
+    lastname: str | None = None
+    fullname: str | None = None
     disabled: bool | None = None
     register_time: datetime | None = None
 
