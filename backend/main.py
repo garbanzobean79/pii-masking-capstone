@@ -293,7 +293,11 @@ async def get_inference(payload):
 async def mask_text(text: str, mask_level: list[str], current_user: Annotated[str, Depends(get_current_active_user)]):
     inference_res = await get_inference({"inputs": text})
 
-    print(inference_res[0])
+    if(mask_level==[]):
+        session.change_masklevel(1,mask_level)
+    else:
+        session.change_masklevel(0,mask_level)
+
     masked_sentence,entity_dic=session.mask_sentence(text,inference_res) #this will mask the text
     
     ###
@@ -349,15 +353,7 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
         print(f"Error fetching documents: {e}")
         return None
 
-@app.post("/mask-level")
-async def mask_level(level:list[str]):
-    print(level)
-    if(level==[]):
-        session.change_masklevel(1,level)
-    else:
-        session.change_masklevel(0,level)
-        
-    return session.get_masklevel()
+
 
 #manual option here
 @app.post("/manual-mask")
