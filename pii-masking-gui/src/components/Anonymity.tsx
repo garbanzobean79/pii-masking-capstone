@@ -55,20 +55,20 @@ function Anonymity(){
     }, [token]);
 
 
-    // TODO: replace with guarded route
-    useEffect(() => {
-        // Function to run when the component is loaded
-        console.log('Component loaded');
+    // // TODO: replace with guarded route
+    // useEffect(() => {
+    //     // Function to run when the component is loaded
+    //     console.log('Component loaded');
     
-        // Check if the user is signed in'
-        console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
-        if (sessionStorage.getItem("jwtToken") == null) {
-            navigate('/sign-in');
-        } else {
-            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
-        }
+    //     // Check if the user is signed in'
+    //     console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
+    //     if (sessionStorage.getItem("jwtToken") == null) {
+    //         navigate('/sign-in');
+    //     } else {
+    //         console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+    //     }
 
-    }, []);
+    // }, []);
 
     let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
 

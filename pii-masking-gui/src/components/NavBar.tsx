@@ -53,12 +53,17 @@ function NavBar() {
     navigate('/sign-in');
   }
 
+  const handleSignUp = (event: React.MouseEvent<HTMLButtonElement>) => {
+    console.log("sign-up button pressed", event);
+    navigate('/sign-up');
+  }
+
   const settings = [{setting: 'Logout', onClick: handleLogout}];
 
   return (
-    <AppBar position="static" sx={{ marginBottom: '2rem' }}>
+    <AppBar position="static">
       <Container maxWidth="xl">
-        <Toolbar disableGutters>
+        <Toolbar disableGutters sx={{ margin: 0 }}>
           <Typography
             variant="h6"
             noWrap
@@ -144,10 +149,13 @@ function NavBar() {
             ))}
           </Box>
 
-          {/* Sign in Avatar */}
+          {/* Sign in/up Avatar */}
           <Box sx={{ flexGrow: 0 }}>
             {isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
-              <Button variant="contained" onClick={handleSignIn}>Sign In</Button>
+              <Box sx={{ display: 'flex', gap: 1 }}>
+                <Button variant="contained" color="primary" onClick={handleSignIn}>Sign In</Button>
+                <Button variant="contained" color="primary" onClick={handleSignUp}>Sign Up</Button>
+              </Box>
             ) : (
               <>
                 <Tooltip title="Open settings">

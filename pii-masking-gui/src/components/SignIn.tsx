@@ -5,7 +5,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
 import Grid from '@mui/material/Grid';
 import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
@@ -16,7 +15,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 import { EventRepeat } from '@mui/icons-material';
 
-import { useNavigate, useLocation, redirect } from 'react-router-dom';
+import { Link, useNavigate, useLocation, redirect } from 'react-router-dom';
 
 interface SignInFormState {
   username: string;
@@ -34,6 +33,10 @@ const SignIn: React.FC = () => {
     password: '',
   });
   const [error, setError] = useState<string>('');
+
+  useEffect(() => {
+    console.log(`location.state.redirectTo: ${location.state?.redirectTo}`);
+  });
 
   // Event handler to update form data when username changes
   const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,8 +56,8 @@ const SignIn: React.FC = () => {
 
     if (loginSuccess) {
       console.log("navigating to", location.state?.redirectTo);
-      navigate('/masking-history');
       navigate(location.state?.redirectTo || '/');
+      // navigate(location.state?.redirectTo || '/');
     } else {
       // Display error message
       setError('Authentication error. Try again.');
@@ -94,77 +97,72 @@ const SignIn: React.FC = () => {
   }
 
   return (
-    // <ThemeProvider theme={defaultTheme}>
-      <Container component="main" maxWidth="xs">
-        <CssBaseline />
-        <Box
-          sx={{
-            marginTop: 8,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-            <LockOutlinedIcon />
-          </Avatar>
-          <Typography component="h1" variant="h5">
-            Sign in
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        sx={{
+          marginTop: 8,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5">
+          Sign in
+        </Typography>
+        {error && (
+          <Typography sx={{ mt: 1 }} variant="body2" color="error">
+            {error}
           </Typography>
-          {error && (
-            <Typography sx={{ mt: 1 }} variant="body2" color="error">
-              {error}
-            </Typography>
-          )}
-          <Box component="form" onSubmit={handleSignIn} noValidate sx={{ mt: 1 }}>
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              id="username"
-              label="Username"
-              name="username"
-              autoComplete="username"
-              value={formData.username}
-              onChange={handleUsernameChange}
-              autoFocus
-            />
-            <TextField
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              value={formData.password}
-              onChange={handlePasswordChange}
-              autoComplete="current-password"
-            />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2 }}
-            >
-              Sign In
-            </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
-              <Grid item>
-                <Link href="#" variant="body2">
+        )}
+        <Box component="form" onSubmit={handleSignIn} noValidate sx={{ mt: 1 }}>
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            id="username"
+            label="Username"
+            name="username"
+            autoComplete="username"
+            value={formData.username}
+            onChange={handleUsernameChange}
+            autoFocus
+          />
+          <TextField
+            margin="normal"
+            required
+            fullWidth
+            name="password"
+            label="Password"
+            type="password"
+            id="password"
+            value={formData.password}
+            onChange={handlePasswordChange}
+            autoComplete="current-password"
+          />
+          <Button
+            type="submit"
+            fullWidth
+            variant="contained"
+            sx={{ mt: 3, mb: 2 }}
+          >
+            Sign In
+          </Button>
+          <Grid container>
+            <Grid item>
+              <Typography variant="body2">
+                <Link to="/sign-up">
                   {"Don't have an account? Sign Up"}
                 </Link>
-              </Grid>
+              </Typography>
             </Grid>
-          </Box>
+          </Grid>
         </Box>
-      </Container>
-    // </ThemeProvider>
+      </Box>
+    </Container>
   );
 }
 
