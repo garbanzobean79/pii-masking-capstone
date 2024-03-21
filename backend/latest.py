@@ -109,7 +109,7 @@ class mask:
         return self.sentence
 
     def get_masklevel(self):
-        return self.level
+        return self.masklevel
 
     def change_masklevel(self,mode,mask_level):
         

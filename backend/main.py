@@ -293,11 +293,6 @@ async def get_inference(payload):
 async def mask_text(text: str, mask_level: list[str], current_user: Annotated[str, Depends(get_current_active_user)]):
     inference_res = await get_inference({"inputs": text})
 
-    if(mask_level==[]):
-        session.change_masklevel(1)
-    else:
-        session.change_masklevel(0,mask_level)
-
     print(inference_res[0])
     masked_sentence,entity_dic=session.mask_sentence(text,inference_res) #this will mask the text
     
@@ -308,10 +303,6 @@ async def mask_text(text: str, mask_level: list[str], current_user: Annotated[st
 
         output = masked_sentence 
     )
-
-    print(mask_data)
-
-
     # Store masking information in db
     #modelresponse=session.get_response()
 
@@ -357,13 +348,45 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
     except Exception as e:
         print(f"Error fetching documents: {e}")
         return None
+
+@app.post("/mask-level")
+async def mask_level(level:list[str]):
+    print(level)
+    if(level==[]):
+        session.change_masklevel(1,level)
+    else:
+        session.change_masklevel(0,level)
+        
+    return session.get_masklevel()
+
+#manual option here
+@app.post("/manual-mask")
+async def manual_mask(word: list[str], entity: list[str]):
+    
+    return session.manual_mask(word,entity)
+
+    # Get masking history for this user
+    # TODO: change such that only the most recent x documents are retrieved
+    try:
+        col_ref = db.collection(f'users/{current_user.username}/mask_history')
+        query = col_ref.order_by('created_at', direction=firestore.Query.ASCENDING)
+        docs = col_ref.stream()
+
+        documents = []
+        for doc in docs:
+            document_data = doc.to_dict()
+            document_data['id'] = doc.id
+            documents.append(document_data)
+        
+        return documents
+    except Exception as e:
+        print(f"Error fetching documents: {e}")
+        return None
 @app.post("/run-model")
 async def model_reponse(): 
 
     return session.get_response()
 
-    
-    
 ######
 # Store fine-tuning data from user
 ######
