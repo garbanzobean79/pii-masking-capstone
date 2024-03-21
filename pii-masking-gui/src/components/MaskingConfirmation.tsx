@@ -14,6 +14,8 @@ import Select, { SelectChangeEvent } from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
+import MaskingResults from './MaskingResults';
+import MaskedEntities from './MaskedEntities';
 import React from "react";
 
 import { Link, useNavigate} from "react-router-dom";
@@ -27,19 +29,47 @@ interface Props{
     Entity: boolean[];
     setDisabled2: (value: boolean) => void;
     Masked: string;
-    masked_entity: string[][]
+    Masked_Entities: string[][];
+    setOutput: (value: string) => void;
 }
 
-function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
-
-    const [Error, setError]= useState("");
+function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked, Masked_Entities, setOutput}: Props){
+    const [error, setError]= useState("");
+    const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
     const [add, setAdd]= useState(false);
 
-    let Entities: string [] = []
+    const Entities: string [] = []
 
-    const submitText= async() => {
+    const runModel= async() => {
+        try{
+            const response= await fetch('http://127.0.0.1:8000/run-model', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json'
+                }
+            });
+        
+        if(!response.ok){
+            throw new Error('Failed to mask text');
 
+        }
+        const data= await response.json();
+        console.log(data);
+        console.log("fetched data", data.Response_Message);
+        setOutput(data.Response_Message);
+    }
+        catch(error:any){
+            if (error instanceof Error) {
+                setError(error.message);
+            } else {
+                setError("An unknown error has occured.");
+            }
+            console.log(error);
+        }
+    };
+
+    const reMask= async() => {
         const requestOptions = {
             method: "POST",
                 headers: {"Content-Type": "application/json"},
@@ -57,13 +87,9 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
         }
     };
 
-    const reMask= (e: ChangeEvent<HTMLFormElement>) => {
-
-    };
-
-    const handleSubmit2 = (e: ChangeEvent<HTMLFormElement>) => {
+    const handleSubmit2 = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        submitText();
+        runModel();
         setDisabled2(false);
     };
 
@@ -83,13 +109,8 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
                 </AccordionSummary>
                 <AccordionDetails>
                     <Container sx={{display: 'flex', flexDirection: 'row', gap: '5%'}}>
-                    <Container>
-                        <Typography>Masking Results</Typography>
-                        <Typography>{Masked}</Typography>
-                    </Container>
-                    <Container sx={{ border: '1px solid black'}}>
-                        <Typography>Entities</Typography>
-                    </Container>
+                    <MaskingResults Masked= {Masked}/>
+                    <MaskedEntities masked_entities={Masked_Entities}/>
                     </Container>
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
@@ -108,24 +129,24 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
                                 <Select
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
-                                value={Entity}
+                                value={NewType}
                                 label="Entity Type"
                                 onChange={addEntity}
                                 >
                                 { Entity[0] &&
-                                <MenuItem value={"Name"}>Name</MenuItem> }
+                                <MenuItem value={"Name"} onClick={()=> setType("Name")}>Name</MenuItem> }
                                 { Entity[1] &&
-                                <MenuItem value={"City"}>City</MenuItem> }
+                                <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> }
                                 {Entity[2] &&
-                                <MenuItem value={"Date"}>Date</MenuItem>}
+                                <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>}
                                 {Entity[3] &&
-                                <MenuItem value={"Email"}>Email</MenuItem>}
+                                <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>}
                                 {Entity[4] &&
-                                <MenuItem value={"SSN"}>SSN</MenuItem>}
+                                <MenuItem value={"SSN"} onClick={()=> setType("SSN")}>SSN</MenuItem>}
                                 {Entity[5] &&
-                                <MenuItem value={"Company"}>Company</MenuItem>}
+                                <MenuItem value={"Company"} onClick={()=> setType("Company")}>Company</MenuItem>}
                                 {Entity[6] &&
-                                <MenuItem value={"Currency"}>Currency</MenuItem>}
+                                <MenuItem value={"Currency"} onClick={()=> setType("Currency")}>Currency</MenuItem>}
                                 </Select>
                             </FormControl>
                         </Box>
@@ -134,7 +155,7 @@ function MaskingConfirmation({disabled1, setDisabled2, Entity, Masked}: Props){
                         <Button variant="contained" sx={{ margin: '20px'}} >Add entity</Button>
                         <Button variant="contained" sx={{ margin: '20px'}} >Re Mask</Button>
                     </Container>
-                    <Button variant="outlined" onClick={() => handleSubmit2} sx={{ margin: '50px' }}>Confirm</Button>
+                    <Button variant="outlined" onClick={handleSubmit2} sx={{ margin: '50px' }}>Confirm</Button>
                 </AccordionDetails>
             </Accordion>            
         </>

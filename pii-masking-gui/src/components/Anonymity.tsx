@@ -5,6 +5,7 @@ import {useState, useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import React from "react";
 import { isTokenExpired } from '../services/authService';
+import { Output } from '@mui/icons-material';
 
 function Anonymity(){
 
@@ -19,11 +20,14 @@ function Anonymity(){
     const [Masked, setMasked]= useState("");
     const [disabled1, setDisabled1]= useState(true);
     const [disabled2, setDisabled2]= useState(true);
+    const [Loading, setLoading]= useState(false);
+    const [output, setOutput]= useState("");
     const token= sessionStorage.getItem("jwtToken");
 
     const navigate = useNavigate();
 
-    let masked_entities: string[][] = []
+    const [maskedEntities, setMaskedEntities] = useState<string[][]>([]);
+
 
     useEffect(() => {
         if (sessionStorage.getItem("jwtToken") == null) {
@@ -51,7 +55,7 @@ function Anonymity(){
             }
         };
         fetchUser();
-
+        console.log(disabled2);
     }, [token]);
 
 
@@ -86,16 +90,18 @@ function Anonymity(){
                 setCompany={setCompany}
                 setCurrency={setCurrency}
                 setMasked={setMasked}
-                masked_entities={masked_entities}
+                setMaskedEntities= {setMaskedEntities}
+                setLoading={setLoading}
                 />
             <MaskingConfirmation 
             disabled1= {disabled1} 
             setDisabled2={setDisabled2}
             Entity={Entity}
             Masked= {Masked}
-            masked_entity={masked_entities}
+            Masked_Entities={maskedEntities}
+            setOutput= {setOutput}
             />
-            <LLMOutput disabled2= {disabled2} />
+            <LLMOutput disabled2= {disabled2} Masked={Masked} Output= {output}/>
         </>
     );
 }

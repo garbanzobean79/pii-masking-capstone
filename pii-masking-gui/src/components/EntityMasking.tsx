@@ -29,17 +29,20 @@ interface Props{
     setCurrency: (value: boolean) => void;
     setDisabled1: (value: boolean) => void;
     setMasked: (value: string) => void;
-    masked_entities: string [][];
+    setLoading: (value: boolean) => void;
+    setMaskedEntities: (value: string[][]) => void;
 }
 
 function EntityMasking({setChecked, setName, setCity, setDate, 
-    setEmail, setSSN, setCompany, setCurrency, setDisabled1, Checked, setMasked, masked_entities}: Props){
+    setEmail, setSSN, setCompany, setCurrency, setDisabled1, Checked, setMasked, setMaskedEntities, setLoading}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
+    const masked_entity: string[][]= []
 
     const navigate = useNavigate();
 
     const submitText= async() => {
+        setLoading(true);
         try{
             const response= await fetch(`http://127.0.0.1:8000/mask-text?text=${encodeURIComponent(Text)}`, {
                 method: 'POST',
@@ -58,11 +61,19 @@ function EntityMasking({setChecked, setName, setCity, setDate,
             console.log(data);
             console.log("fetched data", data.masker.masked_sentence);
             setMasked(data.masker.masked_sentence);
-            /*var i:any
-            for(i in data.masked_input.entities){
-                console.log(data.masker.masked_sentence.substring(i.start+1, i.end+1));
-                masked_entities.push([i.word, data.masker.masked_sentence.substring(i.start+1, i.end+1)]);
-            }*/
+            masked_entity.splice(0);
+            let Array_length= (data.masked_input.entities).length;
+            for(let i=0; i< Array_length; i++){
+                console.log("Input:", data.masked_input.entities[i].word);
+                console.log("Output:", data.masker.masked_sentence.substring(data.masked_input.entities[i].start+1, data.masked_input.entities[i].end+1));
+                masked_entity.push([
+                    data.masked_input.entities[i].word,
+                    data.masker.masked_sentence.substring(data.masked_input.entities[i].start + 1, data.masked_input.entities[i].end + 1)
+                ]);
+                console.log(masked_entity);
+            }
+
+            setMaskedEntities([...masked_entity]);
 
         }
 
@@ -91,6 +102,7 @@ function EntityMasking({setChecked, setName, setCity, setDate,
             setDate(true);
             setSSN(true);
         }
+        setLoading(false);
     };
 
     return(
@@ -111,7 +123,7 @@ function EntityMasking({setChecked, setName, setCity, setDate,
                         multiline
                         rows={10}
                         margin="normal"
-                        defaultValue="Enter text here"
+                        placeholder="Enter text here"
                         variant="filled"
                         onChange={(e) => {setText(e.target.value)}}
                     />
@@ -123,8 +135,9 @@ function EntityMasking({setChecked, setName, setCity, setDate,
                                     row
                                     aria-labelledby="demo-row-radio-buttons-group-label"
                                     name="row-radio-buttons-group"
+                                    defaultValue= "Default"
                                 >
-                                    <FormControlLabel value="Default" control={<Radio />} label="Default" onClick={() => setChecked(false)}/>
+                                    <FormControlLabel value="Default" defaultChecked= {true} control={<Radio />} label="Default" onClick={() => setChecked(false)}/>
                                     <FormControlLabel value="Custom" control={<Radio />} label="Custom" onClick={() =>  setChecked(true)}/>
                                 </RadioGroup>
                         </FormControl>
