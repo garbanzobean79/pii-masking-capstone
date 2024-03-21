@@ -74,7 +74,7 @@ class mask:
             self.masklevel=self.options["default"]
         else:
             custom_options=kwargs.get('custom',None)
-            self.options["custom"]=[custom_options]
+            self.options["custom"]=custom_options
             self.masklevel=self.options["custom"]
     
     def mask_sentence(self,input_sentence,inference_res):
@@ -103,7 +103,7 @@ class mask:
         
         #change the masked sentence
         self.masked_sentence=sentence
-        return sentence
+        return sentence,self.store
 
     def get_sentence(self):
         return self.sentence
@@ -111,16 +111,44 @@ class mask:
     def get_masklevel(self):
         return self.level
 
-    def change_masklevel(self,mode,**kwargs):
-
+    def change_masklevel(self,mode,mask_level):
+        
         self.mode=mode
         if(mode==1):
             self.masklevel=self.options["default"]
         else:
-            custom_options=kwargs.get('custom',None)
-            self.options["custom"]=[custom_options]
+            custom_options=mask_level
+            self.options["custom"]=custom_options
             self.masklevel=self.options["custom"]
 
+    def manual_mask(self,word,entity):
+        
+        words=word
+        print("\n")
+        print("please identify the type of the entity you want to mask: ")
+        entity=entity
+        for x in range(len(words)):
+            input1=words[x]
+            input2=entity[x]
+
+            if(input1 in self.masked_sentence and input2 in self.masklevel):
+                
+                self.manualdict["Entity"].append(input1)
+                self.manualdict["Type"].append(input2)
+                occurances=self.masked_sentence.count(input1)
+
+                for x in range(occurances):
+                    self.masked_sentence=self.masked_sentence.replace(input1,self.replace[input2][self.usecount[input2]]) #check this again
+
+                self.store["original"].append(input1)
+                self.store["masked"].append(self.replace[input2][0])
+                self.usecount[input2]+=1
+
+            else:
+                print("please enter a valid entity and type \n")
+
+        return self.sentence, self.masked_sentence, self.store 
+        
     def get_maskedsentence(self):
         return self.masked_sentence
     
@@ -128,7 +156,7 @@ class mask:
         response=openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=self.masked_sentence, #here is where sentence goes
-        max_tokens=100,
+        max_tokens=200,
         temperature=0
         )
         response_message = response["choices"][0]["text"]
@@ -150,12 +178,12 @@ class mask:
                     og=og.replace(strings,self.store["original"][self.store["masked"].index(masked)]+"'s")
 
         final_output={
+                      "prompt": self.masked_sentence,
                       "Response_Message":response_message,
                       "Orignal_Message":og
                     }
 
         return final_output
-
 
 
 #some basic post and get request

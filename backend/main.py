@@ -290,12 +290,16 @@ async def get_inference(payload):
     return res_json
 # @Dipen: insert your masking code here
 @app.post("/mask-text")
-async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_active_user)]):
+async def mask_text(text: str, mask_level: list[str], current_user: Annotated[str, Depends(get_current_active_user)]):
     inference_res = await get_inference({"inputs": text})
-    #mask_level=1
-    #session=mask(mask_level) #
+
+    if(mask_level==[]):
+        session.change_masklevel(1)
+    else:
+        session.change_masklevel(0,mask_level)
+
     print(inference_res[0])
-    masked_sentence=session.mask_sentence(text,inference_res) #this will mask the text
+    masked_sentence,entity_dic=session.mask_sentence(text,inference_res) #this will mask the text
     
     ###
     mask_data = MaskData(
@@ -307,6 +311,7 @@ async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_
 
     print(mask_data)
 
+
     # Store masking information in db
     #modelresponse=session.get_response()
 
@@ -317,10 +322,13 @@ async def mask_text(text: str, current_user: Annotated[str, Depends(get_current_
     # Return masked text to frontend
     #mask_data contains the mask info
     #session is the global object variable that is used to run the functions inside of the mask class
+    #entity_mask is a dictionary with original and masked arrays
+
     if history_res is None:
         return {'interfence_result': inference_res,
                 'masked_input':mask_data,
-                'masker':session
+                'masker':session,
+                'entity_mask':entity_dic
                 }
     else:
         return {**history_res, 
