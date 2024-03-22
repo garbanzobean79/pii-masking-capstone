@@ -2,7 +2,7 @@ import Anonymity from "./components/Anonymity";
 import Home from "./components/Home";
 import Signup from "./components/Signup";
 import SignIn from "./components/SignIn";
-import MaskingHistory from "./components/MaskingHistory";
+import MaskingHistory from "./components/MaskingHistory/MaskingHistory";
 import NavBar from "./components/NavBar";
 import { Container } from "@mui/material";
 import React from "react";
@@ -30,21 +30,7 @@ function App(){
                     />
                     <Route path="/sign-up" element = {<Signup/>}/>
                     <Route path="/sign-in" element = {<SignIn/>}/>
-                    {/* <Route
-                        path="/masking-history"
-                        element={
-                            isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
-                                console.log("jwtToken is expired, redirecting from masking-history to sign in"),
-                                <Navigate to="/sign-in" state={{redirectTo:"/masking-history"}} /> 
-                            ) : (
-                                <MaskingHistory />
-                            )
-                        }
-                    /> */}
-                    <Route
-                        path="/masking-history"
-                        element= {<MaskingHistory />}
-                    />
+                    <Route path="/masking-history" element= {<MaskingHistory />}/>
                 </Routes>
             </Router>
         </>

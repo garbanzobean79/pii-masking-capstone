@@ -19,7 +19,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import { SettingsBackupRestoreRounded, SettingsSystemDaydreamTwoTone } from '@mui/icons-material';
 
-import { isTokenExpired } from '../services/authService';
+import { isTokenExpired } from '../../services/authService';
 
 function MaskingHistory(){
     interface MaskingInstance {
@@ -48,17 +48,17 @@ function MaskingHistory(){
 
     const drawerWidth = 240;
 
-    // TODO: replace with guarded route
     useEffect(() => {
         // Function to run when the component is loaded
-        console.log('Component loaded');
+        console.log('in MaskingHistory.tsx useEffect');
     
         // Check if the user is signed in'
-        console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
-        if (sessionStorage.getItem("jwtToken") == null) {
+        console.log(`checking if the user is logged in: jwt: ${sessionStorage.getItem("jwtToken")}`)
+        
+        if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
             navigate('/sign-in');
         } else {
-            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+            console.log("valid token in local storage: " + sessionStorage.getItem("jwtToken"));
         }
 
         // Fetch masking history
@@ -82,6 +82,11 @@ function MaskingHistory(){
 
                 setMaskingHistory(fetchedData);
 
+                if (maskingHistory != null)
+                    setSelectedMaskingInstance(maskingHistory[0]);
+    
+                console.log("maskingHistory", maskingHistory);
+
                 setLoading(false);
             } catch (error: any) {
                 if (error instanceof Error) {
@@ -95,16 +100,8 @@ function MaskingHistory(){
         };
 
         fetch_masking_history();
-        console.log("maskingHistory", maskingHistory);
-    }, []); // Empty dependency array ensures this runs only once on component mount
+    }, []);
     
-    // select the intial masking instance
-    useEffect(() => {
-        if (maskingHistory !== null && maskingHistory.length > 0) {
-            console.log(`selecting ${maskingHistory[0]} as default masking instance`);
-            setSelectedMaskingInstance(maskingHistory[0]);
-        }
-    }, [maskingHistory])
 
     return (
     <Box sx={{ display: 'flex' }}>
@@ -126,11 +123,8 @@ function MaskingHistory(){
                 ) : (
                     maskingHistory.map((item, index) => (
                     <ListItem key={item.id} disablePadding>
-                        <ListItemButton>
-                        {/* <ListItemIcon>
-                            {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                        </ListItemIcon> */}
-                        <ListItemText primary={item.id} />
+                        <ListItemButton onClick={() => setSelectedMaskingInstance(item)}>
+                            <ListItemText primary={item.id} />
                         </ListItemButton>
                     </ListItem>
                     ))
@@ -140,22 +134,22 @@ function MaskingHistory(){
         </Box>
         </Drawer>
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-        <Toolbar />
-        <Typography component='h1' variant='h4'>
-            Masking History
-        </Typography>
-        <Typography component='p'>
-            Input:
-            {
-                selectedMaskingInstance?.input
-            }
-        </Typography>
-        <Typography paragraph>
-            Output:
-            {
-                selectedMaskingInstance?.output
-            }
-        </Typography>
+            <Toolbar />
+            <Typography component='h1' variant='h4'>
+                Masking History
+            </Typography>
+            <Typography component='p'>
+                Input:
+                {
+                    selectedMaskingInstance?.input
+                }
+            </Typography>
+            <Typography paragraph>
+                Output:
+                {
+                    selectedMaskingInstance?.output
+                }
+            </Typography>
         </Box>
     </Box>
     );
