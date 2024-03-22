@@ -66,19 +66,17 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
 
             }
             const data= await response.json();
-            console.log(data);
             console.log("fetched data", data.masker.masked_sentence);
+            console.log(data.entity_mask);
             setMasked(data.masker.masked_sentence);
             masked_entity.splice(0);
             let Array_length= (data.entity_mask.original).length;
-            console.log(data.entity_mask);
-            console.log(Array_length);
             for(let i=0; i< Array_length; i++){
-                console.log("Input:", data.entity_mask.original);
-                console.log("Output:", data.entity_mask.masked);
+                console.log("Input:", data.entity_mask.original[i]);
+                console.log("Output:", data.entity_mask.masked[i]);
                 masked_entity.push([
-                    data.entity_mask.original,
-                    data.entity_mask.masked
+                    data.entity_mask.original[i],
+                    data.entity_mask.masked[i]
                 ]);
             }
             console.log(masked_entity);

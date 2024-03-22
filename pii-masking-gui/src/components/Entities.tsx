@@ -9,13 +9,14 @@ import { Container } from '@mui/material';
 interface Props{
     masked_entities: string[][];
     isVisible: boolean;
+    Title: string;
 }
 
-function MaskedEntities({masked_entities, isVisible}: Props){
+function Entities({masked_entities, isVisible, Title}: Props){
 
     return(
         <Container sx={{ border: '1px solid black'}}>
-            <Typography>Masked Entities</Typography>
+            <Typography>{Title}</Typography>
             <Container>
                 { masked_entities.map((value, rowIndex) => (
                     <Container sx= {{display: "flex", flexDirection: "row", alignItems: "center", gap: "5%"}} key={`row-${rowIndex}`}>
@@ -34,4 +35,4 @@ function MaskedEntities({masked_entities, isVisible}: Props){
     );
 }
 
-export default MaskedEntities;
+export default Entities;

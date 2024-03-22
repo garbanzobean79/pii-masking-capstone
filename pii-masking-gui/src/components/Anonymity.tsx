@@ -66,6 +66,7 @@ function Anonymity(){
         // Check if the user is signed in'
         console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
         if (sessionStorage.getItem("jwtToken") == null) {
+            setMaskedEntities([]);
             navigate('/sign-in');
         } else {
             console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
@@ -96,6 +97,8 @@ function Anonymity(){
             Masked= {Masked}
             Masked_Entities={maskedEntities}
             setOutput= {setOutput}
+            setMasked= {setMasked}
+            setMaskedEntities= {setMaskedEntities}
             />
             <LLMOutput disabled2= {disabled2} Masked={Masked} Output= {output}/>
         </>
