@@ -32,9 +32,11 @@ interface Props{
     Masked_Entities: string[][];
     setMaskedEntities: (value: string[][]) => void;
     setOutput: (value: string) => void;
+    maskingInstanceId: string;
 }
 
-function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, setMaskedEntities, setOutput, setMasked}: Props){
+function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, 
+    setMaskedEntities, setOutput, setMasked, maskingInstanceId}: Props){
     const [error, setError]= useState("");
     const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
@@ -42,6 +44,10 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, 
     const isVisible: boolean= true;
     const [Entity_Type, setET] = useState<string[][]>([]);
     const masked_entity: string[][]= []
+
+    // Counts the number of times the manual mask endpoint 
+    // was called (used in storing masking history)
+    const [manualMaskCount, setManualMaskCount] = useState(0);
 
     async function runModel(){
         try{
@@ -79,23 +85,34 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, 
             const Word= Entity_Type.map(row => row[1]);
             console.log(Word);
 
+            // Update the manual mask counter 
+            setManualMaskCount(manualMaskCount + 1);
+            const req_body = JSON.stringify({
+                word: Word, 
+                entity: Type, 
+                manual_mask_count: manualMaskCount,
+                masking_instance_id: maskingInstanceId
+            })
+            console.log("sending the following body to /manual-mask: ", req_body)
+
             const response= await fetch("http://127.0.0.1:8000/manual-mask", {
                 method: 'POST',
                     headers: {
                         'accept': 'application/json',
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`
                     },
-                body: JSON.stringify({word: Word, entity: Type})
+                body: req_body
             });
 
             if(!response.ok){
                 throw new Error('Failed to mask text');
-    
             }
 
             const data= await response.json();
             console.log(data);
             setMasked(data[1]);
+            console.log(`number of times manual masking was called: ${manualMaskCount}`)
             masked_entity.splice(0);
             let Array_length= (data[2].masked).length;
             for(let i=0; i< Array_length; i++){

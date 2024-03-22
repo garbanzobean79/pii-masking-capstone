@@ -22,6 +22,7 @@ function Anonymity(){
     const [disabled2, setDisabled2]= useState(true);
     const [Loading, setLoading]= useState(false);
     const [output, setOutput]= useState("");
+    const [maskingInstanceId, setMaskingInstanceId] = useState('');
     const token= sessionStorage.getItem("jwtToken");
 
     const navigate = useNavigate();
@@ -58,20 +59,16 @@ function Anonymity(){
     }, [token]);
 
 
-    // // TODO: replace with guarded route
-    // useEffect(() => {
-    //     // Function to run when the component is loaded
-    //     console.log('Component loaded');
-    
-    //     // Check if the user is signed in'
-    //     console.log(`jwt: ${sessionStorage.getItem("jwtToken")}`)
-    //     if (sessionStorage.getItem("jwtToken") == null) {
-    //         navigate('/sign-in');
-    //     } else {
-    //         console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
-    //     }
-
-    // }, []);
+    // TODO: replace with guarded route
+    useEffect(() => {
+        // Check if the user is signed in'
+        if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
+            console.log("token has expired or did not exist. navigating to sign-in")
+            navigate('/sign-in');
+        } else {
+            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+        }
+    }, []);
 
     return (
         <>
@@ -89,17 +86,23 @@ function Anonymity(){
                 setMasked={setMasked}
                 setMaskedEntities= {setMaskedEntities}
                 setLoading={setLoading}
-                />
-            <MaskingConfirmation 
-            disabled1= {disabled1} 
-            setDisabled2={setDisabled2}
-            Masked= {Masked}
-            Masked_Entities={maskedEntities}
-            setOutput= {setOutput}
-            setMasked= {setMasked}
-            setMaskedEntities= {setMaskedEntities}
+                setMaskingInstanceId={setMaskingInstanceId}
             />
-            <LLMOutput disabled2= {disabled2} Masked={Masked} Output= {output}/>
+            <MaskingConfirmation 
+                disabled1= {disabled1} 
+                setDisabled2={setDisabled2}
+                Masked= {Masked}
+                Masked_Entities={maskedEntities}
+                setOutput= {setOutput}
+                setMasked= {setMasked}
+                setMaskedEntities= {setMaskedEntities}
+                maskingInstanceId= {maskingInstanceId}
+            />
+            <LLMOutput 
+                disabled2= {disabled2} 
+                Masked={Masked} 
+                Output= {output}
+            />
         </>
     );
 }

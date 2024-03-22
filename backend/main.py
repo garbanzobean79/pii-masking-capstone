@@ -257,14 +257,21 @@ class MaskData(BaseModel):
     entities: list[InferenceEntity]
     output: str
 
-async def store_mask_history(mask_data: MaskData, user: User):
+async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, doc_name: str, user: User):
     print("store_mask_history()")
 
     col_ref = db.collection(f'users/{user.username}/mask_history')
-    doc_ref = col_ref.document(datetime.now().strftime('%m-%d-%Y %H:%M:%S'))
+    doc_ref = col_ref.document(doc_name)
+
+    # Create the document
+    doc = mask_data.model_dump() | {'created_at': datetime.now()}
+    if masking_instance_name is not None:
+        doc['masking_instance_name'] = masking_instance_name
+
+    print(f"storing the following doc into masking history for user {user.username}:\n{doc}")
 
     try:
-        res = doc_ref.set(mask_data.model_dump() | {'created_at': datetime.now()})
+        res = doc_ref.set(doc)
     except exceptions.FirebaseError as e:
         print("Error setting document:", e)
         return {'error': 'There was an error in storing this masking instance to your masking history.'}
@@ -290,56 +297,91 @@ async def get_inference(payload):
         )
 
     return res_json
-# @Dipen: insert your masking code here
+
+class MaskTextParams(BaseModel):
+    text: str
+    mask_level: list[str]
+    masking_instance_name: str | None = None
+
 @app.post("/mask-text")
-async def mask_text(text: str, mask_level: list[str], current_user: Annotated[str, Depends(get_current_active_user)]):
-    inference_res = await get_inference({"inputs": text})
+async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+    inference_res = await get_inference({"inputs": req_body.text})
 
-    if(mask_level==[]):
-        session.change_masklevel(1,mask_level)
+    if(req_body.mask_level==[]):
+        session.change_masklevel(1, req_body. mask_level)
     else:
-        session.change_masklevel(0,mask_level)
+        session.change_masklevel(0, req_body.mask_level)
 
-    masked_sentence,entity_dic=session.mask_sentence(text,inference_res) #this will mask the text
+    masked_sentence,entity_dic=session.mask_sentence(req_body.text,inference_res) #this will mask the text
     
     ###
     mask_data = MaskData(
-        input = text,
+        input = req_body.text,
         entities = [InferenceEntity(**entity_dict) for entity_dict in inference_res],
-
         output = masked_sentence 
     )
     # Store masking information in db
     #modelresponse=session.get_response()
 
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
-
-    history_res = await store_mask_history(mask_data, current_user)
+    doc_name = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
+    history_res = await store_mask_history(req_body.masking_instance_name, mask_data, doc_name, current_user)
 
     # Return masked text to frontend
     #mask_data contains the mask info
     #session is the global object variable that is used to run the functions inside of the mask class
     #entity_mask is a dictionary with original and masked arrays
 
-    if history_res is None:
-        return {'interfence_result': inference_res,
-                'masked_input':mask_data,
-                'masker':session,
-                'entity_mask':entity_dic
-                }
-    else:
-        return {**history_res, 
-                'inference_result': inference_res,
-                'masked_input':mask_data,
-                'masker':session,
-                'entity_mask':entity_dic
-        }
+    ret = {
+        'inference_result': inference_res,
+        'masked_input':mask_data,
+        'masker':session,
+        'entity_mask':entity_dic,
+        'masking_instance_id': doc_name
+    }
 
-#manual option here
+    if history_res is not None:
+        ret = ret | history_res
+
+    return ret
+
+class ManualMaskingParams(BaseModel):
+    word: list[str]
+    entity: list[str]
+    manual_mask_count: int
+    masking_instance_id: str
+
 @app.post("/manual-mask")
-async def manual_mask(word: list[str], entity: list[str]):
+async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
     
-    return session.manual_mask(word,entity)
+    original_text, masked_text, tmp_mask_dict = session.manual_mask(req_body.word, req_body.entity)
+
+    mask_dict = {}
+    for (original_entity, masked_entity) in zip(tmp_mask_dict['original'], tmp_mask_dict['masked']):
+        mask_dict[original_entity] = masked_entity
+    
+    # Append to mask history
+    col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/manual_masking')
+    doc_ref = col_ref.document(str(req_body.manual_mask_count))
+
+    # Create the document
+    doc = {
+        "pre_manual_masking_text": original_text,
+        "entity_mappings": mask_dict,
+        "post_manual_masking_text": masked_text
+    }
+
+    print(f"storing into {doc_ref.path}:\n{doc}")
+
+    # TODO: throw a http error instaed of returning an error message
+    return_msg = None
+    try:
+        res = doc_ref.set(doc)
+    except exceptions.FirebaseError as e:
+        print("Error setting document:", e)
+        return_msg = {'error': 'There was an error in storing this manual masking instance to your masking history.'}
+
+    return original_text, masked_text, tmp_mask_dict, return_msg
 
 @app.get("/masking-history")
 async def get_mask_history(current_user: Annotated[str, Depends(get_current_active_user)]):
@@ -362,31 +404,6 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
         print(f"Error fetching documents: {e}")
         return None
 
-
-
-#manual option here
-@app.post("/manual-mask")
-async def manual_mask(word: list[str], entity: list[str]):
-    
-    return session.manual_mask(word,entity)
-
-    # Get masking history for this user
-    # TODO: change such that only the most recent x documents are retrieved
-    try:
-        col_ref = db.collection(f'users/{current_user.username}/mask_history')
-        query = col_ref.order_by('created_at', direction=firestore.Query.ASCENDING)
-        docs = col_ref.stream()
-
-        documents = []
-        for doc in docs:
-            document_data = doc.to_dict()
-            document_data['id'] = doc.id
-            documents.append(document_data)
-        
-        return documents
-    except Exception as e:
-        print(f"Error fetching documents: {e}")
-        return None
 @app.post("/run-model")
 async def model_reponse(): 
 

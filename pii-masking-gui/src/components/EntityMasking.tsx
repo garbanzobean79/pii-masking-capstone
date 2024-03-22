@@ -38,27 +38,38 @@ interface Props{
     setMasked: (value: string) => void;
     setLoading: (value: boolean) => void;
     setMaskedEntities: (value: string[][]) => void;
+    setMaskingInstanceId: (value: string) => void;
 }
 
 function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate, 
-    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, setDisabled1, Checked, setMasked, setMaskedEntities, setLoading}: Props){
+    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, 
+    setDisabled1, Checked, setMasked, setMaskedEntities, setLoading, setMaskingInstanceId}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
+    const [maskingInstanceName, setMaskingInstanceName] = useState<string>('');
     const masked_entity: string[][]= []
 
     const navigate = useNavigate();
 
     async function submitText(Mask_Level: string[]) {
+        let req_body;
+        if (maskingInstanceName == '') {
+            req_body = JSON.stringify({ text: Text, mask_level: Mask_Level });
+        } else {
+            req_body = JSON.stringify({ text: Text, mask_level: Mask_Level, masking_instance_name: maskingInstanceName });
+        }
+
+        console.log("body of fetch to /mask-text: ", req_body)
         setLoading(true);
         try{
-            const response= await fetch(`http://127.0.0.1:8000/mask-text?text=${encodeURIComponent(Text)}`, {
+            const response= await fetch(`http://127.0.0.1:8000/mask-text`, {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
                     'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(Mask_Level)
+                body: req_body
             });
 
             if(!response.ok){
@@ -66,9 +77,10 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
 
             }
             const data= await response.json();
-            console.log("fetched data", data.masker.masked_sentence);
+            console.log("fetched data", data);
             console.log(data.entity_mask);
             setMasked(data.masker.masked_sentence);
+            setMaskingInstanceId(data.masking_instance_id)
             masked_entity.splice(0);
             let Array_length= (data.entity_mask.original).length;
             for(let i=0; i< Array_length; i++){
@@ -164,7 +176,7 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
                         onChange={(e) => {setText(e.target.value)}}
                     />
                     </Container>
-                    <Container sx={{ margin: '20px'}}>
+                    <Container sx={{ mt: '20px'}}>
                         <FormControl>
                             <FormLabel id="demo-row-radio-buttons-group-label">Level of Masking</FormLabel>
                                 <RadioGroup
@@ -189,7 +201,17 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
                         </FormGroup>
                         }
                     </Container>
-                        <Button variant= "outlined" type= "submit" onClick={() => handleSubmit} sx={{ margin: '20px'}}>Submit</Button>
+                    <Container>
+                        <TextField
+                            margin="normal"
+                            id="maskingInstanceName"
+                            label="Name of Masking Instance"
+                            name="maskingInstanceName"
+                            value={maskingInstanceName}
+                            onChange={(e) => {setMaskingInstanceName(e.target.value)}}
+                        />
+                    </Container>
+                    <Button variant= "outlined" type= "submit" onClick={() => handleSubmit} sx={{ margin: '20px'}}>Submit</Button>
                 </form>
                 </Container>
             </AccordionDetails>
