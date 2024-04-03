@@ -17,25 +17,27 @@ import ListItemText from '@mui/material/ListItemText';
 import MailIcon from '@mui/icons-material/Mail';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
+import Grid from '@mui/material/Grid';
 import { SettingsBackupRestoreRounded, SettingsSystemDaydreamTwoTone } from '@mui/icons-material';
 
 import { isTokenExpired } from '../../services/authService';
 
 function MaskingHistory(){
     interface MaskingInstance {
-        created_at: Date;
+        created_at: string;
         input: string;
-        entities: Entity[];
+        masking_instance_name: string;
         output: string;
         id: string;
-    }
-    
-    interface Entity {
-        end: number;
-        entity_group: string;
-        start: number;
-        score: number;
-        word: string;
+        entities: {
+          end: number;
+          start: number;
+          entity_group: string;
+          score: number;
+          word: string;
+          masked_to: string;
+        }[];
+        manual_masking_entities: any[]; // You can define a proper interface if needed
     }
 
     const navigate = useNavigate();
@@ -43,11 +45,12 @@ function MaskingHistory(){
     const [signedIn, setSignedIn] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<String>('');
-    const [maskingHistory, setMaskingHistory] = useState<Array<MaskingInstance> | null>(null);
+    const [maskingHistory, setMaskingHistory] = useState<MaskingInstance[]>([]);
     const [selectedMaskingInstance, setSelectedMaskingInstance] = useState<MaskingInstance | null>(null);
 
     const drawerWidth = 240;
 
+    // Check if user is signed in and fetch masking history
     useEffect(() => {
         // Function to run when the component is loaded
         console.log('in MaskingHistory.tsx useEffect');
@@ -83,9 +86,8 @@ function MaskingHistory(){
                 setMaskingHistory(fetchedData);
 
                 if (maskingHistory != null)
+                    console.log("masking_history: ", maskingHistory)
                     setSelectedMaskingInstance(maskingHistory[0]);
-    
-                console.log("maskingHistory", maskingHistory);
 
                 setLoading(false);
             } catch (error: any) {
@@ -102,6 +104,67 @@ function MaskingHistory(){
         fetch_masking_history();
     }, []);
     
+    useEffect(() => {
+        if (maskingHistory !== null && maskingHistory.length > 0) {
+            setSelectedMaskingInstance(maskingHistory[0]);
+        }
+    }, [maskingHistory])
+
+    useEffect(() => {
+        console.log("selected masking instance:", selectedMaskingInstance)
+    }, [selectedMaskingInstance])
+
+    const renderSideBarItems = () => {
+        if (maskingHistory === null) {
+            return <Typography>No masking history available.</Typography>;
+        } else {
+            return maskingHistory.map((item, index) => {
+            if (item.hasOwnProperty('masking_instance_name')){
+                return (
+                    <ListItem key={item.id} disablePadding>
+                    <ListItemButton onClick={() => setSelectedMaskingInstance(item)}>
+                        <ListItemText 
+                            primary={item.masking_instance_name} 
+                            secondary={item.id} 
+                        />
+                    </ListItemButton>
+                    </ListItem>
+                );
+            } else {
+                return (
+                    <ListItem key={item.id} disablePadding>
+                    <ListItemButton onClick={() => setSelectedMaskingInstance(item)}>
+                        <ListItemText primary={item.id} />
+                    </ListItemButton>
+                    </ListItem>
+                );
+            }
+        });
+        }
+    };
+
+    const renderEntities = () => {
+        return (
+            <Grid>
+                {/* Render entities */}
+                {selectedMaskingInstance?.entities && selectedMaskingInstance.entities.length > 0 &&
+                    selectedMaskingInstance.entities.map((entity, index) => (
+                        <Typography key={index}>
+                            {entity.entity_group}: {entity.word} =&#62; {entity?.masked_to}
+                        </Typography>
+                    ))
+                }
+                {/* Render manual masking entities */}
+                {/* {data.manual_masking_entities && data.manual_masking_entities.length > 0 &&
+                    data.manual_masking_entities.map((entity, index) => (
+                        <Typography key={index}>
+                            {entity.entity_group}: {entity.word}
+                        </Typography>
+                    ))
+                } */}
+            </Grid>
+        );
+    }
 
     return (
     <Box sx={{ display: 'flex' }}>
@@ -114,42 +177,64 @@ function MaskingHistory(){
             [`& .MuiDrawer-paper`]: { width: drawerWidth, boxSizing: 'border-box' },
         }}
         >
-        <Toolbar />
-        <Box sx={{ overflow: 'auto' }}>
-            <Typography>History</Typography>
-            <List>
-            {maskingHistory === null ? (
-                <Typography>No masking history available.</Typography>
-                ) : (
-                    maskingHistory.map((item, index) => (
-                    <ListItem key={item.id} disablePadding>
-                        <ListItemButton onClick={() => setSelectedMaskingInstance(item)}>
-                            <ListItemText primary={item.id} />
-                        </ListItemButton>
-                    </ListItem>
-                    ))
-                )}
-            </List>
-            <Divider />
-        </Box>
-        </Drawer>
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
             <Toolbar />
-            <Typography component='h1' variant='h4'>
-                Masking History
-            </Typography>
-            <Typography component='p'>
-                Input:
-                {
-                    selectedMaskingInstance?.input
-                }
-            </Typography>
-            <Typography paragraph>
-                Output:
-                {
-                    selectedMaskingInstance?.output
-                }
-            </Typography>
+            <Box sx={{ overflow: 'auto' }}>
+                <Typography>History</Typography>
+                <List>{renderSideBarItems()}</List>
+                <Divider />
+            </Box>
+        </Drawer>
+        <Box 
+            component="main" 
+            sx={{ flexGrow: 1, mx: 20, mt: 10 }}>
+            <Grid 
+                container 
+                spacing={2}
+            >
+                <Grid item xs={12}>
+                    <Typography variant="h3">
+                        {selectedMaskingInstance?.masking_instance_name ?? selectedMaskingInstance?.id}
+                    </Typography>
+                </Grid>
+                <Grid item xs={8} spacing={8}>
+                    <Box
+                        display="flex"
+                        flexDirection="column"
+                        gap={4}
+                    >
+                        <Box>
+                            <Typography variant="h4">
+                                Input Text
+                            </Typography>
+                            <Typography variant="body2">
+                                {
+                                    (selectedMaskingInstance != null) && selectedMaskingInstance.input
+                                }
+                            </Typography>
+                        </Box>
+                        <Box>
+                            <Typography variant="h4">
+                                Output Text
+                            </Typography>
+                            <Typography variant="body2">
+                            {
+                                (selectedMaskingInstance != null) && selectedMaskingInstance.output
+                            }
+                        </Typography>
+                        </Box>
+                    </Box>
+                </Grid>
+                <Grid item xs={4}>
+                    <Box>
+                        <Typography variant="h4">
+                            Entities
+                        </Typography>
+                        <Grid>
+                            {renderEntities()}
+                        </Grid>
+                    </Box>
+                </Grid>
+            </Grid>
         </Box>
     </Box>
     );
