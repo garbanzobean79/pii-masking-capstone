@@ -190,13 +190,13 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                                 label="Entity Type"
                                 >
                                 <MenuItem value={"Select an Entity Type"}>Select an Entity Type</MenuItem> 
-                                <MenuItem value={"Name"} onClick={()=> setType("Name")}>Name</MenuItem> 
-                                <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> 
-                                <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>
-                                <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>
+                                <MenuItem value={"Name"} onClick={()=> setType("FIRSTNAME")}>Name</MenuItem> 
+                                <MenuItem value={"City"} onClick={()=> setType("CITY")}>City</MenuItem> 
+                                <MenuItem value={"Date"} onClick={()=> setType("DATE")}>Date</MenuItem>
+                                <MenuItem value={"Email"} onClick={()=> setType("EMAIL")}>Email</MenuItem>
                                 <MenuItem value={"SSN"} onClick={()=> setType("SSN")}>SSN</MenuItem>
-                                <MenuItem value={"Company"} onClick={()=> setType("Company")}>Company</MenuItem>
-                                <MenuItem value={"Currency"} onClick={()=> setType("Currency")}>Currency</MenuItem>
+                                <MenuItem value={"Company"} onClick={()=> setType("COMPANY")}>Company</MenuItem>
+                                <MenuItem value={"Currency"} onClick={()=> setType("CURRENCY")}>Currency</MenuItem>
                                 </Select>
                             </FormControl>
                         </Box>
