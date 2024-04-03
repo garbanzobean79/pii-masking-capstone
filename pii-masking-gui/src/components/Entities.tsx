@@ -24,7 +24,8 @@ function Entities({masked_entities, isVisible, Title}: Props){
                                 | {value[0]} -&gt; {value[1]}{" "}
                         </Typography>
                         <Box>
-                        <IconButton aria-label="close" size= "small" sx={{display: isVisible ? 'flex' : 'none', border: '1px solid red'}}>
+                        <IconButton aria-label="close" size= "small"
+                        sx={{display: isVisible ? 'flex' : 'none', border: '1px solid red'}}>
                             <CloseIcon sx={{ fontSize: '10px', color: 'red'}}/>
                         </IconButton>
                         </Box>

@@ -25,10 +25,10 @@ function Anonymity(){
     const [maskingInstanceId, setMaskingInstanceId] = useState('');
     const token= sessionStorage.getItem("jwtToken");
 
-    const navigate = useNavigate();
-
     const [maskedEntities, setMaskedEntities] = useState<string[][]>([]);
 
+    const navigate= useNavigate();
+    
     useEffect(() => {
         if (sessionStorage.getItem("jwtToken") == null) {
             navigate('/sign-in');
@@ -57,18 +57,6 @@ function Anonymity(){
         fetchUser();
         console.log(disabled2);
     }, [token]);
-
-
-    // TODO: replace with guarded route
-    useEffect(() => {
-        // Check if the user is signed in'
-        if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
-            console.log("token has expired or did not exist. navigating to sign-in")
-            navigate('/sign-in');
-        } else {
-            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
-        }
-    }, []);
 
     return (
         <>

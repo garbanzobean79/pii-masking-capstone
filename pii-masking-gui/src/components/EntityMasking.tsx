@@ -49,8 +49,6 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
     const [maskingInstanceName, setMaskingInstanceName] = useState<string>('');
     const masked_entity: string[][]= []
 
-    const navigate = useNavigate();
-
     async function submitText(Mask_Level: string[]) {
         let req_body;
         if (maskingInstanceName == '') {
@@ -109,7 +107,6 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
 
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
         let Mask_Level: string[]= [];
         if (Checked) {
             if (Name) {

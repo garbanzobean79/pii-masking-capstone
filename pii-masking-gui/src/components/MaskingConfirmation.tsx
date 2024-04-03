@@ -40,7 +40,6 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
     const [error, setError]= useState("");
     const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
-    const [add, setAdd]= useState(false);
     const isVisible: boolean= true;
     const [Entity_Type, setET] = useState<string[][]>([]);
     const masked_entity: string[][]= []
@@ -145,7 +144,15 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
     };
 
     const addEntity = () => {
-        setET([...Entity_Type, [NewType, NewEntity]])
+        if((NewType) === "Name"){
+            setET([...Entity_Type, ["FIRSTNAME", NewEntity]])
+        }
+        else if((NewType)=== "Comapny"){
+            setET([...Entity_Type, ["COMPANYNAME", NewEntity]])
+        }
+        else{
+            setET([...Entity_Type, [NewType.toUpperCase(), NewEntity]])
+        }
         console.log(NewEntity);
         console.log(NewType);
         console.log(Entity_Type);
@@ -171,14 +178,6 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
                         <Box sx={{display: 'flex', flexDirection: 'row', gap: '2%', margin: '20px'}}>
-                        <RadioGroup
-                                row
-                                aria-labelledby="demo-row-radio-buttons-group-label"
-                                name="row-radio-buttons-group"
-                                sx={{display:"flex", justifyContent: "center", alignItems: "center"}}
-                            >
-                                <FormControlLabel value="Add" control={<Radio />} label="Class" onClick={() => setAdd(true)}/>
-                        </RadioGroup>
                         <Box sx={{ minWidth: 500 }}>
                             <FormControl fullWidth>
                                 <InputLabel id="demo-simple-select-label">Entity Type</InputLabel>

@@ -19,15 +19,7 @@ function App(){
                     <Route path="/" element={<Home/>}/>
                     <Route 
                         path="/masking-text"
-                        element={
-                            isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
-                                console.log("jwtToken is expired"),
-                                <Navigate to="/sign-in" state={{redirectTo:"/masking-text"}} /> 
-                            ) : (
-                                <Anonymity/>
-                            )
-                        }
-                    />
+                        element={<Anonymity/>}/>
                     <Route path="/sign-up" element = {<Signup/>}/>
                     <Route path="/sign-in" element = {<SignIn/>}/>
                     <Route path="/masking-history" element= {<MaskingHistory />}/>
