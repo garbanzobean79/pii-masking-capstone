@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { isTokenExpired } from '../../services/authService';
-import Entities from '../MaskingTextPage/Entities';
 
 function MaskingHistory(){
     interface MaskingInstance {
