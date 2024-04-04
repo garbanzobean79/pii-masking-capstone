@@ -132,6 +132,18 @@ function MaskingHistory(){
         });
     }
 
+    // Function to calculate color based on score
+    const getColorFromScore = (score: number) => {
+        // Ensure score is within the range of 0 to 1
+        score = Math.max(0, Math.min(1, score));
+        // Calculate the color based on the score
+        const r = Math.floor(255 * (1 - score));
+        const g = Math.floor(255 * score);
+        const b = 0;
+        // Return the color as a CSS string
+        return `rgba(${r}, ${g}, ${b}, 0.7)`;
+    };
+
     const renderMaskingHistoryListItems = () => {
         if (maskingHistory === null) {
             return <Typography>No masking history available.</Typography>;
@@ -197,48 +209,98 @@ function MaskingHistory(){
         );
     }
 
+    // TODO: find manual masking entities & avoid collisions with ner entities
     const renderInputTextWithEntities = (maskingInst: MaskingInstance) => {
-        console.log("rerendering input text...")
-        // Create word arrays
-        // const inputWords = maskingInst?.input.split(/(\s+)|([\p{P}\p{S}])/);
-        const inputWords = maskingInst?.input.split(' ');
-
-        const entityMap: {[key: string]: Entity} = {}
-        maskingInst?.entities.forEach(entity=> {
-            entityMap[entity.word] = entity;
-        });
-
-        console.log(entityMap);
-
-        const renderedText = inputWords.map((word, index) => {
-            const entity = entityMap[word];
-
-            console.log(word);
-
-            if (entity && entity.word == word) {
-                // console.log("entity", entity);
-                return (
-                    <>
-                        <Button key={word} variant="contained" color="primary">
-                            {word}:
-                            <Typography>
-                                {entity.entity_group}
-                            </Typography>
-                        </Button>
-                        {' '}
-                    </>
-                );
-            } else {
-                return (
-                    <>
-                        <span>{word}</span>
-                        {' '}
-                    </>
-                )
+        // for each entity, store indexes of all instances of the entity in input string
+        const entity_loc:{[key:number]: Entity} = {}
+        maskingInst.entities.forEach(entity => {
+            let start_index = 0;
+            let index: number;
+            while ((index = maskingInst.input.indexOf(entity.word, start_index)) !== -1) {
+                entity_loc[index] = entity;
+                start_index = index + entity.word.length;
             }
         })
 
-        return <>{renderedText}</>;
+        // Iterate through the input string
+        let renderedText: JSX.Element[] = [];
+        let startSeg = 0;
+        for (let i = 0; i < maskingInst.input.length; i++) {
+            if (entity_loc.hasOwnProperty(i)){
+                // Push the previous segment (non entity) as rendered text
+                renderedText.push(
+                    <span>{maskingInst.input.substring(startSeg, i-1)}</span>
+                )
+
+                // Push the current segment (entity) as button
+                const buttonColor = getColorFromScore(entity_loc[i].score);
+                console.log(buttonColor);
+
+                renderedText.push(
+                    <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
+                        {entity_loc[i].word}: {entity_loc[i].entity_group}
+                    </Button>
+                )
+
+                // Increment index counter by the entity length
+                startSeg = i + entity_loc[i].word.length;
+                i = startSeg;
+            }
+        }
+
+        // Push the last segment (non entity) as rendered text
+        renderedText.push(
+            <span>{maskingInst.input.substring(startSeg, maskingInst.input.length)}</span>
+        )
+
+        return renderedText;
+    }
+
+    // TODO: find manual masking entities & avoid collisions with ner entities
+    const renderOutputTextWithEntities = (maskingInst: MaskingInstance) => {
+        // for each entity, store indexes of all instances of the entity in input string
+        const entity_loc:{[key:number]: Entity} = {}
+        maskingInst.entities.forEach(entity => {
+            let start_index = 0;
+            let index: number;
+            while ((index = maskingInst.output.indexOf(entity.masked_to, start_index)) !== -1) {
+                entity_loc[index] = entity;
+                start_index = index + entity.masked_to.length;
+            }
+        })
+
+        // Iterate through the input string
+        let renderedText: JSX.Element[] = [];
+        let startSeg = 0;
+        for (let i = 0; i < maskingInst.output.length; i++) {
+            if (entity_loc.hasOwnProperty(i)){
+                // Push the previous segment (non entity) as rendered text
+                renderedText.push(
+                    <span>{maskingInst.output.substring(startSeg, i-1)}</span>
+                )
+
+                // Push the current segment (entity) as button
+                const buttonColor = getColorFromScore(entity_loc[i].score);
+                console.log(buttonColor);
+
+                renderedText.push(
+                    <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
+                        {entity_loc[i].masked_to}: {entity_loc[i].entity_group}
+                    </Button>
+                )
+
+                // Increment index counter by the entity length
+                startSeg = i + entity_loc[i].masked_to.length;
+                i = startSeg;
+            }
+        }
+
+        // Push the last segment (non entity) as rendered text
+        renderedText.push(
+            <span>{maskingInst.output.substring(startSeg, maskingInst.output.length)}</span>
+        )
+
+        return renderedText;
     }
 
     return (
@@ -307,9 +369,10 @@ function MaskingHistory(){
                                     Output Text
                                 </Typography>
                                 <Typography variant="body2">
-                                    {
+                                    {/* {
                                         selectedMaskingInstance?.output
-                                    }
+                                    } */}
+                                    {selectedMaskingInstance && renderOutputTextWithEntities(selectedMaskingInstance)}
                             </Typography>
                             </Box>
                         </Box>
