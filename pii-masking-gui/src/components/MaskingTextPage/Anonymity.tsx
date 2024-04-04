@@ -4,7 +4,7 @@ import LLMOutput from './LLMOutput';
 import {useState, useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import React from "react";
-import { isTokenExpired } from '../services/authService';
+import { isTokenExpired } from '../../services/authService';
 import { Output } from '@mui/icons-material';
 
 function Anonymity(){

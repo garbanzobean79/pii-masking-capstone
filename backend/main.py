@@ -302,7 +302,10 @@ async def get_inference(payload):
         print(res_json)
         raise HTTPException(
             status_code=503, 
-            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {res_json['estimated_time']}",
+            detail={
+                "message": f"Error from HuggingFace: {res_json['error']}", 
+                "estimated_time": f"{res_json['estimated_time']}"
+            },
             headers={'Retry-After': str(retry_after_header)}
         )
     elif 'error' in res_json:
@@ -412,8 +415,8 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
     # Get masking history for this user
     try:
         masking_history_col_ref = db.collection(f'users/{current_user.username}/mask_history')
-        query = masking_history_col_ref.order_by('created_at', direction=firestore.Query.DESCENDING) 
-        docs = masking_history_col_ref.get()
+        query = masking_history_col_ref.order_by('created_at', direction=firestore.Query.DESCENDING).limit(10)
+        docs = query.get()
 
         mask_history_instances = []
         for masking_history_doc in docs:
@@ -438,6 +441,19 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
     except Exception as e:
         print(f"Error fetching documents: {e}")
         return None
+
+@app.delete("/masking-instance/{id}")
+async def delete_masking_instance(id: str, current_user: Annotated[str, Depends(get_current_active_user)]):
+    # Get masking instance
+    masking_inst_ref = db.document(f'users/{current_user.username}/mask_history/{id}')
+    masking_inst_doc = masking_inst_ref.get()
+
+    if not masking_inst_doc.exists:
+        raise HTTPException(404, f"No masking instance of {id} found")
+    
+    masking_inst_ref.delete()
+
+    return {"message": f"Masking instance with ID {id} deleted successfully"}
 
 class ManualMaskingHistoryParams(BaseModel):
     masking_instance_id: str
