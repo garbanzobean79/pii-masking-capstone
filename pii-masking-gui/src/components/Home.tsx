@@ -17,7 +17,6 @@ function Home(){
     
     return (
         <>
-            
             <Container maxWidth="md">
                 <Typography variant="h5" >PII Masking Capstone</Typography>
                 <Typography paragraph>App description</Typography>
