@@ -1,4 +1,4 @@
-import Anonymity from "./components/Anonymity";
+import Anonymity from "./components/MaskingTextPage/Anonymity";
 import Home from "./components/Home";
 import Signup from "./components/Signup";
 import SignIn from "./components/SignIn";

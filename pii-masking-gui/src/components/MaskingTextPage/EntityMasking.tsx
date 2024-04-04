@@ -73,9 +73,13 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
             });
 
             if(!response.ok){
+                const errorResponse = await response.json();
+                console.log("errorResponse", errorResponse);
+                console.log("error message", errorResponse.detail.message);
+                console.log("estimated time message", errorResponse.detail.estimated_time);
                 throw new Error('Failed to mask text');
-
             }
+
             const data= await response.json();
             console.log("fetched data", data);
             console.log(data.entity_mask);
