@@ -241,7 +241,7 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                     <Button variant= "outlined" type= "submit" onClick={() => handleSubmit} sx={{ margin: '20px'}}>Submit</Button>
                 </form>
                 </Container>
-                { Loading && 
+                { Loading &&
                 <LinearProgressWithLabel value={progress}/>
                 }
             </AccordionDetails>
