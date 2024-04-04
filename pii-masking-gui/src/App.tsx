@@ -1,4 +1,4 @@
-import Anonymity from "./components/Anonymity";
+import Anonymity from "./components/MaskingText/Anonymity";
 import Home from "./components/Home";
 import Signup from "./components/Signup";
 import SignIn from "./components/SignIn";
@@ -20,12 +20,14 @@ function App(){
                     <Route 
                         path="/masking-text"
                         element={
+                            /*
                             isTokenExpired(sessionStorage.getItem("jwtToken")) ? (
                                 console.log("jwtToken is expired"),
                                 <Navigate to="/sign-in" state={{redirectTo:"/masking-text"}} /> 
                             ) : (
                                 <Anonymity/>
-                            )
+                            )*/
+                            <Anonymity/>
                         }
                     />
                     <Route path="/sign-up" element = {<Signup/>}/>

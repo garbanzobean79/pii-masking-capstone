@@ -12,10 +12,10 @@ import TextField from '@mui/material/TextField';
 import FormGroup from '@mui/material/FormGroup';
 import Checkbox from '@mui/material/Checkbox';
 import { useState, ChangeEvent, useEffect} from "react";
-import { useNavigate } from 'react-router-dom';
 import Button from '@mui/material/Button';
 import { Container } from '@mui/material';
 import React from "react";
+import LinearProgressWithLabel from './LinearProgressWithLabel';
 
 interface Props{
     Checked: boolean;
@@ -24,7 +24,7 @@ interface Props{
     setName: (value: boolean) => void;
     City: boolean;
     setCity: (value: boolean) => void;
-    Date: boolean;
+    Dates: boolean;
     setDate: (value: boolean) => void;
     Email: boolean;
     setEmail: (value: boolean) => void;
@@ -36,20 +36,22 @@ interface Props{
     setCurrency: (value: boolean) => void;
     setDisabled1: (value: boolean) => void;
     setMasked: (value: string) => void;
-    setLoading: (value: boolean) => void;
     setMaskedEntities: (value: string[][]) => void;
     setMaskingInstanceId: (value: string) => void;
+    expanded: string | false;
+    setExpanded: (value: string | false) => void;
 }
 
-function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate, 
+function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate, 
     Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, 
-    setDisabled1, Checked, setMasked, setMaskedEntities, setLoading, setMaskingInstanceId}: Props){
+    setDisabled1, Checked, setMasked, setMaskedEntities, setMaskingInstanceId, expanded, setExpanded}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
     const [maskingInstanceName, setMaskingInstanceName] = useState<string>('');
     const masked_entity: string[][]= []
-
-    const navigate = useNavigate();
+    const [Loading, setLoading]= useState(false);
+    const [progress, setProgress]= useState<number>(0);
+    const [estimated_time, setTime]= useState<number>(0);
 
     async function submitText(Mask_Level: string[]) {
         let req_body;
@@ -73,14 +75,20 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
             });
 
             if(!response.ok){
-                throw new Error('Failed to mask text');
+                const data= await response.json();
+                console.log("Response: " + data.detail);
+                console.log("Error message: " + data.detail.message);
+                console.log("Time: " + data.detail.estimated_time);
+                setTime(data.detail.estimated_time);
+                setLoading(true);
+                throw new Error(data.detail.message);
 
             }
             const data= await response.json();
             console.log("fetched data", data);
             console.log(data.entity_mask);
             setMasked(data.masker.masked_sentence);
-            setMaskingInstanceId(data.masking_instance_id)
+            setMaskingInstanceId(data.masking_instance_id);
             masked_entity.splice(0);
             let Array_length= (data.entity_mask.original).length;
             for(let i=0; i< Array_length; i++){
@@ -107,9 +115,27 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
 
     };
 
+    const executeLoading = (Mask_Level: string[]) => {
+        const startTime= Date.now();
+        console.log("start time: " + startTime)
+        const interval= setInterval(() => {
+            const elapsedTime= Date.now()- startTime;
+            const newProgress= (elapsedTime / (estimated_time*1000)) * 100;
+            setProgress(newProgress >= 100 ? 100: newProgress);
+            console.log(progress);
+        }, 100);
+        setTimeout(() => 
+        {
+            clearInterval(interval);
+            submitText(Mask_Level);
+            setDisabled1(false);
+            setLoading(false);
+        }, estimated_time * 1000);
+        return () => clearInterval(interval);
+    };
+
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
         e.preventDefault();
-        let Entity: boolean[] = [Name, City, Date, Email, SSN, Company, Currency];
         let Mask_Level: string[]= [];
         if (Checked) {
             if (Name) {
@@ -120,7 +146,7 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
             if (City) {
                 Mask_Level.push("CITY");
             }
-            if (Date) {
+            if (Dates) {
                 Mask_Level.push("DATE");
             }
             if (Email) {
@@ -130,7 +156,7 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
                 Mask_Level.push("SSN");
             }
             if (Company) {
-                Mask_Level.push("COMPANY");
+                Mask_Level.push("COMPANYNAME");
             }
             if (Currency) {
                 Mask_Level.push("CURRENCY");
@@ -144,19 +170,24 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
             Mask_Level.push("DATE");
             Mask_Level.push("EMAIL");
             Mask_Level.push("SSN");
-            Mask_Level.push("COMPANY");
+            Mask_Level.push("COMPANYNAME");
             Mask_Level.push("CURRENCY");
         }
-        console.log(Mask_Level);
         submitText(Mask_Level);
-        setDisabled1(false);
-        setLoading(false);
+        if(Loading){
+            console.log("Estimated time: " + estimated_time);
+            executeLoading(Mask_Level);
+        }
+    };
+
+    const expandPanel= (panel: string) => (event: React.SyntheticEvent, isExpanded:boolean) => {
+        setExpanded(isExpanded ? panel : false);
     };
 
     return(
         <>
-            <Accordion sx={{ margin: '50px'}}>
-            <AccordionSummary  
+            <Accordion expanded= {expanded === 'panel1'} onChange={expandPanel('panel1')}  sx={{ margin: '50px'}}>
+            <AccordionSummary 
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1-content"
                 id="panel1-header">
@@ -214,6 +245,9 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Date, setDate,
                     <Button variant= "outlined" type= "submit" onClick={() => handleSubmit} sx={{ margin: '20px'}}>Submit</Button>
                 </form>
                 </Container>
+                { Loading && 
+                <LinearProgressWithLabel value={progress}/>
+                }
             </AccordionDetails>
         </Accordion>
         </>

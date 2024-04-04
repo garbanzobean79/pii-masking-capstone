@@ -280,6 +280,15 @@ async def store_mask_history(masking_instance_name: str | None, mask_data: MaskD
 
 
 async def get_inference(payload):
+    raise HTTPException(
+        status_code=503, 
+        detail={
+            "message": f"Error from HuggingFace: test message", 
+            "estimated_time": f"30"
+        },
+        headers={'Retry-After': str(30)}
+    )
+
     response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
 
     res_json = response.json()
@@ -287,8 +296,8 @@ async def get_inference(payload):
     if 'error' in res_json and 'estimated_time' in res_json:
         raise HTTPException(
             status_code=503, 
-            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {res_json['estimated_time']}",
-            headers={'Retry-After': res_json['estimated_time']}
+            detail= {"message": f"Error from HuggingFace: {res_json['error']}.", "estimated_time": f"{res_json['estimated_time']}"},
+            headers={'Retry-After': str(retry_after_header)}
         )
     elif 'error' in res_json:
         raise HTTPException(
