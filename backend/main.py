@@ -40,9 +40,12 @@ app.add_middleware(
 )
 
 global session
+global current_mask
+global current_masklevel
+global current_mask_dict
 
-mask_level=1
-session=mask(mask_level)
+session=mask(1,[])
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -324,15 +327,22 @@ class MaskTextParams(BaseModel):
 # mask_level: 
 @app.post("/mask-text")
 async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+    #new session everytime this endpoint is run
+    global session
+    
     inference_res = await get_inference({"inputs": req_body.text})
 
     if(req_body.mask_level==[]):
-        session.change_masklevel(1, req_body. mask_level)
+        session=mask(1,req_body.mask_level)
+        
     else:
-        session.change_masklevel(0, req_body.mask_level)
+        session=mask(0,req_body.mask_level)
+        
 
     masked_sentence,entity_dic=session.mask_sentence(req_body.text,inference_res) #this will mask the text
-    
+    current_mask=masked_sentence
+    current_mask_dict=entity_dic
+    current_masklevel=req_body.mask_level
     ###
     mask_data = MaskData(
         input = req_body.text,
@@ -364,6 +374,17 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     if history_res is not None:
         ret = ret | history_res
 
+
+    if 'error' in inference_res:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error from HuggingFace: {inference_res['error']}."
+        )
+    if 'error' in masked_sentence:
+        raise HTTPException(
+            status_code=501, 
+            detail=f"Error from Masking: {masked_sentence['error']}."
+        )
     return ret
 
 class ManualMaskingParams(BaseModel):
@@ -374,7 +395,10 @@ class ManualMaskingParams(BaseModel):
 
 @app.post("/manual-mask")
 async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
-    
+    #session.masklevel=current_masklevel
+    #session.masked_sentence=current_mask
+    #session.store=current_mask_dict
+
     original_text, masked_text, tmp_mask_dict = session.manual_mask(req_body.word, req_body.entity)
 
     mask_dict = {}
@@ -391,6 +415,7 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
     }
 
     print(f"storing into {manual_masking_inst_doc_ref.path}:\n{mm_doc}")
+
 
     # TODO: throw a http error instaed of returning an error message
     return_msg = None
@@ -464,7 +489,7 @@ class ManualMaskingHistoryParams(BaseModel):
 #         col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/')
 
 @app.post("/run-model")
-async def model_reponse(): 
+async def model_reponse(current_user: Annotated[str, Depends(get_current_active_user)]): 
 
     return session.get_response()
 

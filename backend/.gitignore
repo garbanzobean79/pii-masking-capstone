@@ -4,8 +4,11 @@ key.json
 
 .env
 
+todo.txt
+
 /venv
 
 app.log
 
 __pycache__/
+
