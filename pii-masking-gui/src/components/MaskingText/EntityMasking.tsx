@@ -52,6 +52,28 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
     const [Loading, setLoading]= useState(false);
     const [progress, setProgress]= useState<number>(0);
     const [estimated_time, setTime]= useState<number>(0);
+    const [MaskLevel, setLevel]= useState<string[]>([]);
+
+    useEffect(()=> {
+        if(Loading){
+            console.log("Loading: " + Loading)
+            const startTime= Date.now();
+            console.log("start time: " + startTime)
+            const interval= setInterval(() => {
+                const elapsedTime= Date.now()- startTime;
+                const newProgress= (elapsedTime / (estimated_time*1000)) * 100;
+                setProgress(newProgress >= 100 ? 100: newProgress);
+                console.log("Progress: " + progress);
+            }, 100);
+            setTimeout(() => 
+            {
+                clearInterval(interval);
+                submitText(MaskLevel);
+                setLoading(false);
+            }, estimated_time * 1000);
+            return () => clearInterval(interval);
+        }
+    }, [Loading]);
 
     async function submitText(Mask_Level: string[]) {
         let req_body;
@@ -62,7 +84,6 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
         }
 
         console.log("body of fetch to /mask-text: ", req_body)
-        setLoading(true);
         try{
             const response= await fetch(`http://127.0.0.1:8000/mask-text`, {
                 method: 'POST',
@@ -81,27 +102,24 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                 console.log("Time: " + data.detail.estimated_time);
                 setTime(data.detail.estimated_time);
                 setLoading(true);
-                throw new Error(data.detail.message);
 
+            } else{
+                const data= await response.json();
+                console.log(data.entity_mask);
+                setMasked(data.masker.masked_sentence);
+                setMaskingInstanceId(data.masking_instance_id);
+                masked_entity.splice(0);
+                let Array_length= (data.entity_mask.original).length;
+                for(let i=0; i< Array_length; i++){
+                    masked_entity.push([
+                        data.entity_mask.original[i],
+                        data.entity_mask.masked[i]
+                    ]);
+                }
+                setLoading(false);
+                setDisabled1(false);
+                setMaskedEntities([...masked_entity]);
             }
-            const data= await response.json();
-            console.log("fetched data", data);
-            console.log(data.entity_mask);
-            setMasked(data.masker.masked_sentence);
-            setMaskingInstanceId(data.masking_instance_id);
-            masked_entity.splice(0);
-            let Array_length= (data.entity_mask.original).length;
-            for(let i=0; i< Array_length; i++){
-                console.log("Input:", data.entity_mask.original[i]);
-                console.log("Output:", data.entity_mask.masked[i]);
-                masked_entity.push([
-                    data.entity_mask.original[i],
-                    data.entity_mask.masked[i]
-                ]);
-            }
-            console.log(masked_entity);
-            setMaskedEntities([...masked_entity]);
-
         }
 
         catch(error:any){
@@ -111,27 +129,8 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                 setError("An unknown error has occured.");
             }
             console.log(error);
+            console.log("Loading1: " + Loading);
         }
-
-    };
-
-    const executeLoading = (Mask_Level: string[]) => {
-        const startTime= Date.now();
-        console.log("start time: " + startTime)
-        const interval= setInterval(() => {
-            const elapsedTime= Date.now()- startTime;
-            const newProgress= (elapsedTime / (estimated_time*1000)) * 100;
-            setProgress(newProgress >= 100 ? 100: newProgress);
-            console.log(progress);
-        }, 100);
-        setTimeout(() => 
-        {
-            clearInterval(interval);
-            submitText(Mask_Level);
-            setDisabled1(false);
-            setLoading(false);
-        }, estimated_time * 1000);
-        return () => clearInterval(interval);
     };
 
     const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
@@ -173,11 +172,8 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
             Mask_Level.push("COMPANYNAME");
             Mask_Level.push("CURRENCY");
         }
+        setLevel(Mask_Level);
         submitText(Mask_Level);
-        if(Loading){
-            console.log("Estimated time: " + estimated_time);
-            executeLoading(Mask_Level);
-        }
     };
 
     const expandPanel= (panel: string) => (event: React.SyntheticEvent, isExpanded:boolean) => {
