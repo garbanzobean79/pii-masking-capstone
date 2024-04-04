@@ -13,15 +13,21 @@ interface Props {
     disabled2: boolean;
     Masked: string;
     Output: string;
+    expanded: string | false;
+    setExpanded: (value: string | false) => void;
 }
 
-function LLMOutput({disabled2, Masked, Output}: Props){
+function LLMOutput({disabled2, Masked, Output, expanded, setExpanded}: Props){
 
     const [error, setError]= useState<String>("");
 
+    const expandPanel= (panel: string) => (event: React.SyntheticEvent, isExpanded:boolean) => {
+        setExpanded(isExpanded ? panel : false);
+    };
+
     return (
         <>
-            <Accordion sx={{ margin: '50px' }} disabled={disabled2}>
+            <Accordion sx={{ margin: '50px' }} disabled={disabled2} expanded= {expanded === 'panel3'} onChange={expandPanel('panel3')} >
                 <AccordionSummary 
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1-content"

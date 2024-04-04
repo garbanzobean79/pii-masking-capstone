@@ -5,7 +5,6 @@ import {useState, useEffect} from "react";
 import { useNavigate } from 'react-router-dom';
 import React from "react";
 import { isTokenExpired } from '../../services/authService';
-import { Output } from '@mui/icons-material';
 
 function Anonymity(){
 
@@ -20,53 +19,20 @@ function Anonymity(){
     const [Masked, setMasked]= useState("");
     const [disabled1, setDisabled1]= useState(true);
     const [disabled2, setDisabled2]= useState(true);
-    const [Loading, setLoading]= useState(false);
     const [output, setOutput]= useState("");
     const [maskingInstanceId, setMaskingInstanceId] = useState('');
-    const token= sessionStorage.getItem("jwtToken");
-
-    const navigate = useNavigate();
+    const [expanded, setExpanded]= useState<string | false>(false) ;
 
     const [maskedEntities, setMaskedEntities] = useState<string[][]>([]);
 
+    const navigate= useNavigate();
+    
     useEffect(() => {
-        if (sessionStorage.getItem("jwtToken") == null) {
+        if(isTokenExpired(sessionStorage.getItem("jwtToken"))){
             navigate('/sign-in');
-        } else {
-            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
         }
-
-    }, []);
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const requestOptions = {
-                method: "GET" ,
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: "Bearer " + token,
-                },
-            };
-
-            const response= await fetch("http://127.0.0.1:8000/users/me", requestOptions);
-        
-            if(!response.ok){
-                console.log("Error");
-            }
-        };
-        fetchUser();
-        console.log(disabled2);
-    }, [token]);
-
-
-    // TODO: replace with guarded route
-    useEffect(() => {
-        // Check if the user is signed in'
-        if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
-            console.log("token has expired or did not exist. navigating to sign-in")
-            navigate('/sign-in');
-        } else {
-            console.log("token in local storage: " + sessionStorage.getItem("jwtToken"));
+        else{
+            navigate('/masking-text');
         }
     }, []);
 
@@ -78,15 +44,16 @@ function Anonymity(){
                 setChecked={setChecked} 
                 setName={setName} Name={Name}
                 setCity={setCity} City={City}
-                setDate={setDate} Date={Date}
+                setDate={setDate} Dates={Date}
                 setEmail={setEmail} Email={Email}
                 setSSN={setSSN} SSN={SSN}
                 setCompany={setCompany} Company={Company}
                 setCurrency={setCurrency} Currency={Currency}
                 setMasked={setMasked}
                 setMaskedEntities= {setMaskedEntities}
-                setLoading={setLoading}
                 setMaskingInstanceId={setMaskingInstanceId}
+                expanded= {expanded}
+                setExpanded= {setExpanded}
             />
             <MaskingConfirmation 
                 disabled1= {disabled1} 
@@ -97,11 +64,15 @@ function Anonymity(){
                 setMasked= {setMasked}
                 setMaskedEntities= {setMaskedEntities}
                 maskingInstanceId= {maskingInstanceId}
+                expanded= {expanded}
+                setExpanded= {setExpanded}
             />
             <LLMOutput 
                 disabled2= {disabled2} 
                 Masked={Masked} 
                 Output= {output}
+                expanded={expanded}
+                setExpanded= {setExpanded}
             />
         </>
     );
