@@ -54,15 +54,16 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                 }
             });
         
-        if(!response.ok){
-            throw new Error('Failed to mask text');
+            if(!response.ok){
+                throw new Error('Failed to mask text');
 
+            }
+            const data= await response.json();
+            console.log(data);
+            console.log("fetched data", data.Response_Message);
+            setExpanded('panel3');
+            setOutput(data.Response_Message);
         }
-        const data= await response.json();
-        console.log(data);
-        console.log("fetched data", data.Response_Message);
-        setOutput(data.Response_Message);
-    }
         catch(error:any){
             if (error instanceof Error) {
                 setError(error.message);
@@ -153,6 +154,10 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
         else if((NewType)=== "Company"){
             setET([...Entity_Type, ["COMPANYNAME", NewEntity]])
         }
+        else if((NewType) === "SSN/Account Number"){
+            setET([...Entity_Type, ["SSN", NewEntity]])
+            setET([...Entity_Type, ["ACCOUNTNUMBER", NewEntity]])
+        }
         else{
             setET([...Entity_Type, [NewType.toUpperCase(), NewEntity]])
         }
@@ -200,9 +205,10 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                                 <MenuItem value={"Middle Name"} onClick={()=> setType("Last Name")}>Middle Name</MenuItem> 
                                 <MenuItem value={"Last Name"} onClick={()=> setType("Middle Name")}>Last Name</MenuItem> 
                                 <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> 
+                                <MenuItem value={"State"} onClick={()=> setType("State")}>State</MenuItem> 
                                 <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>
                                 <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>
-                                <MenuItem value={"SSN"} onClick={()=> setType("SSN")}>SSN</MenuItem>
+                                <MenuItem value={"SSN/Account Number"} onClick={()=> setType("SSN/Account Number")}>SSN/Account Number</MenuItem>
                                 <MenuItem value={"Company"} onClick={()=> setType("Company")}>Company</MenuItem>
                                 <MenuItem value={"Currency"} onClick={()=> setType("Currency")}>Currency</MenuItem>
                                 </Select>

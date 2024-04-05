@@ -33,7 +33,7 @@ class mask:
     replace={
         "FIRSTNAME":["david","bill","emily","john","robert"],
         "COMPANYNAME":["Google","Apple","Microsoft","Walmart"],
-        "DATE":["january 1st","january 2nd", "january 3rd", "january 4th","january 5th"],
+        "DATE":["January 1st","January 2nd", "January 3rd", "January 4th","January 5th"],
         "CITY":["Toronto","Ottawa", "Montreal", "Vancouver", "Calgary"],
         "SSN":["99-999-999"],
         "EMAIL":["hello@gmail.com","who@yahoo.com"],
@@ -142,9 +142,6 @@ class mask:
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
-            print(input1)
-            print(input2)
-            print(self.masked_sentence)
             if(input1 in self.masked_sentence and input2 in self.masklevel):
                 
                 self.manualdict["Entity"].append(input1)
@@ -200,7 +197,7 @@ class mask:
         response=openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=self.masked_sentence, #here is where sentence goes
-        max_tokens=200,
+        max_tokens=1000,
         temperature=0
         )
         response_message = response["choices"][0]["text"]
