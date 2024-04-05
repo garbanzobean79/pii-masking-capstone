@@ -187,8 +187,8 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                 <AccordionDetails>
                     <Container sx={{display: 'flex', flexDirection: 'row', gap: '5%'}}>
                     <MaskingResults Masked= {Masked}/>
-                    <Entities masked_entities={Masked_Entities} isVisible={isVisible} Title={"Masked Entities"}/>
-                    <Entities masked_entities={Entity_Type} isVisible={isVisible} Title={"Entities to Mask"}/>
+                    <Entities masked_entities={Masked_Entities} isVisible={isVisible} setET= {setET} Title={"Masked Entities"}/>
+                    <Entities masked_entities={Entity_Type} isVisible={isVisible} setET= {setET} Title={"Entities to Mask"}/>
                     </Container>
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>

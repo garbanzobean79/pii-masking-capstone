@@ -11,8 +11,8 @@ function MaskingResults({Masked}: Props){
 
     return(
         <Container sx={{ border: '1px solid black'}}>
-            <Typography>Masking Results</Typography>
-            <Typography>{Masked}</Typography>
+            <Typography variant= "h6" fontStyle= "italic" sx={{margin: '10px'}}>Masking Results</Typography>
+            <Typography sx={{marginBottom: '10px'}}>{Masked}</Typography>
         </Container>
     );
 }
