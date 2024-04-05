@@ -122,7 +122,6 @@ class TokenData(BaseModel):
 
 @app.post("/register/")
 def register(user: RegisteringUser):
-
     # Determine if the user already exists (unique key)
     docs = (
         db.collection('users')
@@ -137,7 +136,6 @@ def register(user: RegisteringUser):
     # Register this user
     # Hash password
     db_user = UserInDB(
-        **user.model_dump(),
         **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
