@@ -14,7 +14,7 @@ import Entities from './Entities';
 import React from "react";
 import Button from '@mui/material/Button';
 import {useState} from "react";
-
+import { useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
 
 interface Props{
@@ -42,6 +42,7 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
     const [Entity_Type, setET] = useState<string[][]>([]);
     const masked_entity: string[][]= [];
  
+    const navigate= useNavigate();
 
     // Counts the number of times the manual mask endpoint 
     // was called (used in storing masking history)
@@ -62,6 +63,9 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             });
         
             if(!response.ok){
+                const data= await response.json();
+                if(data.detail== "Could not validate credentials")
+                    navigate('/sign-in');
                 throw new Error('Failed to mask text');
 
             }
@@ -112,10 +116,15 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             });
 
             if(!response.ok){
+                const data= await response.json();
+                if(data.detail== "Could not validate credentials")
+                    navigate('/sign-in');
                 throw new Error('Failed to mask text');
             }
 
             const data= await response.json();
+            if(data.detail== "Could not validate credentials")
+                navigate('/sign-in');
             console.log(data);
             setMasked(data[1]);
             console.log(`number of times manual masking was called: ${manualMaskCount}`)
