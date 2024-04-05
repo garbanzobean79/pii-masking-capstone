@@ -197,7 +197,7 @@ class mask:
         response=openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=self.masked_sentence, #here is where sentence goes
-        max_tokens=200,
+        max_tokens=1000,
         temperature=0
         )
         response_message = response["choices"][0]["text"]
