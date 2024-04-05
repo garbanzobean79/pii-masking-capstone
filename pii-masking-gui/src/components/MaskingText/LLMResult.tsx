@@ -9,9 +9,9 @@ interface Props {
 function LLMResult({Output}: Props){
 
     return (
-        <Container sx={{border: '2px solid #000000', margin: '20px' }}>
-        <Typography>Text Received from LLM</Typography>
-        <Typography>{Output}</Typography>
+        <Container sx={{margin: '20px', padding: '10px'}}>
+        <Typography variant="h6" fontStyle= "italic">Text Received from LLM</Typography>
+        <Typography paragraph>{Output}</Typography>
     </Container>
     );
 }

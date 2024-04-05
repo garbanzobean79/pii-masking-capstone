@@ -16,6 +16,7 @@ import Button from '@mui/material/Button';
 import { Container } from '@mui/material';
 import React from "react";
 import LinearProgressWithLabel from './LinearProgressWithLabel';
+import { useNavigate } from 'react-router-dom';
 
 interface Props{
     Checked: boolean;
@@ -55,6 +56,8 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
     const [progress, setProgress]= useState<number>(0);
     const [estimated_time, setTime]= useState<number>(0);
     const [MaskLevel, setLevel]= useState<string[]>([]);
+
+    const navigate= useNavigate();
 
     useEffect(()=> {
         if(Loading){
@@ -103,7 +106,11 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                 console.log("Error message: " + data.detail.message);
                 console.log("Time: " + data.detail.estimated_time);
                 setTime(data.detail.estimated_time);
-                setLoading(true);
+                if(data.detail !== "Could not validate credentials")
+                    setLoading(true);
+                else{
+                    navigate('/sign-in');
+                }
 
             } else{
                 const data= await response.json();
