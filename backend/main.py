@@ -56,9 +56,6 @@ app.add_middleware(
 )
 
 global session
-global current_mask
-global current_masklevel
-global current_mask_dict
 
 session=mask(1,[])
 
@@ -364,10 +361,10 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     inference_res = await get_inference({"inputs": req_body.text})
 
     if(req_body.mask_level==[]):
-        session=mask(1,req_body.mask_level)
+        session.change_masklevel(1,req_body.mask_level)
         
     else:
-        session=mask(0,req_body.mask_level)
+        session.change_masklevel(0,req_body.mask_level)
         
 
     masked_sentence,entity_dic=session.mask_sentence(req_body.text,inference_res) #this will mask the text
