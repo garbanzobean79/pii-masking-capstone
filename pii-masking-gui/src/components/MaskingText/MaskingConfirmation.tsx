@@ -3,24 +3,17 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Typography from '@mui/material/Typography';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
 import TextField from '@mui/material/TextField';
-import FormGroup from '@mui/material/FormGroup';
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select from '@mui/material/Select';
 import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import Box from '@mui/material/Box';
 import MaskingResults from './MaskingResults';
 import Entities from './Entities';
 import React from "react";
-
-import { Link, useNavigate} from "react-router-dom";
 import Button from '@mui/material/Button';
-import { useState, ChangeEvent} from "react";
+import {useState} from "react";
 
 import { Container } from '@mui/material';
 
@@ -33,14 +26,15 @@ interface Props{
     setMaskedEntities: (value: string[][]) => void;
     setOutput: (value: string) => void;
     maskingInstanceId: string;
+    expanded: string | false;
+    setExpanded: (value: string | false) => void;
 }
 
 function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, 
-    setMaskedEntities, setOutput, setMasked, maskingInstanceId}: Props){
+    setMaskedEntities, setOutput, setMasked, maskingInstanceId, expanded, setExpanded}: Props){
     const [error, setError]= useState("");
     const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
-    const [add, setAdd]= useState(false);
     const isVisible: boolean= true;
     const [Entity_Type, setET] = useState<string[][]>([]);
     const masked_entity: string[][]= []
@@ -145,7 +139,21 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
     };
 
     const addEntity = () => {
-        setET([...Entity_Type, [NewType, NewEntity]])
+        if((NewType) === "First Name"){
+            setET([...Entity_Type, ["FIRSTNAME", NewEntity]])
+        }
+        else if((NewType) === "Last Name"){
+            setET([...Entity_Type, ["LASTNAME", NewEntity]])
+        }
+       else if((NewType) === "Middle Name"){
+            setET([...Entity_Type, ["MIDDLENAME", NewEntity]])
+        }
+        else if((NewType)=== "Company"){
+            setET([...Entity_Type, ["COMPANYNAME", NewEntity]])
+        }
+        else{
+            setET([...Entity_Type, [NewType.toUpperCase(), NewEntity]])
+        }
         console.log(NewEntity);
         console.log(NewType);
         console.log(Entity_Type);
@@ -153,9 +161,13 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
         setType("Select an Entity Type");
     };
 
+    const expandPanel= (panel: string) => (event: React.SyntheticEvent, isExpanded:boolean) => {
+        setExpanded(isExpanded ? panel : false);
+    };
+
     return(
         <>
-            <Accordion disabled={disabled1} sx={{ margin: '50px'}}>
+            <Accordion disabled={disabled1} sx={{ margin: '50px'}} expanded= {expanded === 'panel2'} onChange={expandPanel('panel2')} >
                 <AccordionSummary 
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1-content"
@@ -171,14 +183,6 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
                         <Box sx={{display: 'flex', flexDirection: 'row', gap: '2%', margin: '20px'}}>
-                        <RadioGroup
-                                row
-                                aria-labelledby="demo-row-radio-buttons-group-label"
-                                name="row-radio-buttons-group"
-                                sx={{display:"flex", justifyContent: "center", alignItems: "center"}}
-                            >
-                                <FormControlLabel value="Add" control={<Radio />} label="Class" onClick={() => setAdd(true)}/>
-                        </RadioGroup>
                         <Box sx={{ minWidth: 500 }}>
                             <FormControl fullWidth>
                                 <InputLabel id="demo-simple-select-label">Entity Type</InputLabel>
@@ -190,7 +194,9 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                                 label="Entity Type"
                                 >
                                 <MenuItem value={"Select an Entity Type"}>Select an Entity Type</MenuItem> 
-                                <MenuItem value={"Name"} onClick={()=> setType("Name")}>Name</MenuItem> 
+                                <MenuItem value={"First Name"} onClick={()=> setType("First Name")}>First Name</MenuItem> 
+                                <MenuItem value={"Middle Name"} onClick={()=> setType("Last Name")}>Middle Name</MenuItem> 
+                                <MenuItem value={"Last Name"} onClick={()=> setType("Middle Name")}>Last Name</MenuItem> 
                                 <MenuItem value={"City"} onClick={()=> setType("City")}>City</MenuItem> 
                                 <MenuItem value={"Date"} onClick={()=> setType("Date")}>Date</MenuItem>
                                 <MenuItem value={"Email"} onClick={()=> setType("Email")}>Email</MenuItem>

@@ -260,21 +260,34 @@ class MaskData(BaseModel):
     entities: list[InferenceEntity]
     output: str
 
-async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, doc_name: str, user: User):
+async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, mask_mapping: dict, doc_name: str, user: User):
     print("store_mask_history()")
 
-    col_ref = db.collection(f'users/{user.username}/mask_history')
-    doc_ref = col_ref.document(doc_name)
+    mask_history_col_ref = db.collection(f'users/{user.username}/mask_history')
+    mask_history_doc_ref = mask_history_col_ref.document(doc_name)
 
     # Create the document
-    doc = mask_data.model_dump() | {'created_at': datetime.now()}
+    entities = mask_data.model_dump(include=['entities'])
+    masking_data = mask_data.model_dump(exclude=['entities']) # Not including entities
+
+    doc = masking_data | {'created_at': datetime.now()}
     if masking_instance_name is not None:
         doc['masking_instance_name'] = masking_instance_name
 
     print(f"storing the following doc into masking history for user {user.username}:\n{doc}")
 
     try:
-        res = doc_ref.set(doc)
+        res = mask_history_doc_ref.set(doc)
+
+        # set ner entities collection docs
+        for i, entity in enumerate(entities['entities']):
+            ner_entity_doc_ref = mask_history_doc_ref.collection("ner_entities").document(f"{i}")
+
+            try:
+                ner_entity_doc_ref.set(entity | {'masked_to': mask_mapping[entity['word']]})
+            except KeyError as e:
+                print(f"WARNING => Entity {entity['word']} was not masked!")
+
     except exceptions.FirebaseError as e:
         print("Error setting document:", e)
         return {'error': 'There was an error in storing this masking instance to your masking history.'}
@@ -283,15 +296,30 @@ async def store_mask_history(masking_instance_name: str | None, mask_data: MaskD
 
 
 async def get_inference(payload):
+    
+    # raise HTTPException(
+    #     status_code=503, 
+    #     detail={
+    #         "message": f"Error from HuggingFace: test message", 
+    #         "estimated_time": f"30"
+    #     },
+    #     headers={'Retry-After': str(30)}
+    # )
+
     response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
 
     res_json = response.json()
 
     if 'error' in res_json and 'estimated_time' in res_json:
+        retry_after_header = res_json['estimated_time']
+        print(res_json)
         raise HTTPException(
             status_code=503, 
-            detail=f"Error from HuggingFace: {res_json['error']}. Estimated time: {res_json['estimated_time']}",
-            headers={'Retry-After': res_json['estimated_time']}
+            detail={
+                "message": f"Error from HuggingFace: {res_json['error']}", 
+                "estimated_time": f"{res_json['estimated_time']}"
+            },
+            headers={'Retry-After': str(retry_after_header)}
         )
     elif 'error' in res_json:
         raise HTTPException(
@@ -306,6 +334,7 @@ class MaskTextParams(BaseModel):
     mask_level: list[str]
     masking_instance_name: str | None = None
 
+# mask_level: 
 @app.post("/mask-text")
 async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depends(get_current_active_user)]):
     #new session everytime this endpoint is run
@@ -335,7 +364,9 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
 
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
     doc_name = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
-    history_res = await store_mask_history(req_body.masking_instance_name, mask_data, doc_name, current_user)
+    mask_mapping = {orig_entity: masked_entity for orig_entity, masked_entity in zip(entity_dic['original'], entity_dic['masked'])}
+    print(mask_mapping)
+    history_res = await store_mask_history(req_body.masking_instance_name, mask_data, mask_mapping, doc_name, current_user)
 
     # Return masked text to frontend
     #mask_data contains the mask info
@@ -385,49 +416,87 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
         mask_dict[original_entity] = masked_entity
     
     # Append to mask history
-    col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/manual_masking')
-    doc_ref = col_ref.document(str(req_body.manual_mask_count))
+    col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/manual_masking_instances')
+    manual_masking_inst_doc_ref = col_ref.document(str(req_body.manual_mask_count))
 
     # Create the document
-    doc = {
-        "pre_manual_masking_text": original_text,
-        "entity_mappings": mask_dict,
-        "post_manual_masking_text": masked_text
+    mm_doc = {
+        "entity_mappings": mask_dict
     }
 
-    print(f"storing into {doc_ref.path}:\n{doc}")
+    print(f"storing into {manual_masking_inst_doc_ref.path}:\n{mm_doc}")
 
 
     # TODO: throw a http error instaed of returning an error message
     return_msg = None
     try:
-        res = doc_ref.set(doc)
+        res = manual_masking_inst_doc_ref.set(mm_doc)
+
+        # Update masked text
+        db.document(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}') \
+            .update({"manual_mask_output": masked_text})
+
     except exceptions.FirebaseError as e:
         print("Error setting document:", e)
         return_msg = {'error': 'There was an error in storing this manual masking instance to your masking history.'}
+        # raise HTTPException(500, 'There was an error in storing this manual masking instance to your masking history.')
 
     return original_text, masked_text, tmp_mask_dict, return_msg
 
+# TODO: change such that only the most recent x documents are retrieved
 @app.get("/masking-history")
 async def get_mask_history(current_user: Annotated[str, Depends(get_current_active_user)]):
 
     # Get masking history for this user
-    # TODO: change such that only the most recent x documents are retrieved
     try:
-        col_ref = db.collection(f'users/{current_user.username}/mask_history')
-        query = col_ref.order_by('created_at', direction=firestore.Query.ASCENDING)
-        docs = col_ref.stream()
+        masking_history_col_ref = db.collection(f'users/{current_user.username}/mask_history')
+        query = masking_history_col_ref.order_by('created_at', direction=firestore.Query.DESCENDING).limit(10)
+        docs = query.get()
 
-        documents = []
-        for doc in docs:
-            document_data = doc.to_dict()
-            document_data['id'] = doc.id
-            documents.append(document_data)
-        
-        return documents
+        mask_history_instances = []
+        for masking_history_doc in docs:
+            doc_data = masking_history_doc.to_dict()
+            doc_data['id'] = masking_history_doc.id
+
+            # get entities
+            entities_ref = masking_history_doc.reference.collection("ner_entities")
+            doc_data['entities'] = []
+            for entity_doc in entities_ref.get():
+                doc_data['entities'].append(entity_doc.to_dict())
+
+            # get manual masking instances
+            mm_ref = masking_history_doc.reference.collection("manual_masking_entities")
+            doc_data['manual_masking_entities'] = []
+            for entity_doc in mm_ref.get():
+                doc_data['manual_masking_entities'].append(entity_doc.to_dict())
+
+            mask_history_instances.append(doc_data)
+
+        return mask_history_instances
     except Exception as e:
         print(f"Error fetching documents: {e}")
         return None
+
+@app.delete("/masking-instance/{id}")
+async def delete_masking_instance(id: str, current_user: Annotated[str, Depends(get_current_active_user)]):
+    # Get masking instance
+    masking_inst_ref = db.document(f'users/{current_user.username}/mask_history/{id}')
+    masking_inst_doc = masking_inst_ref.get()
+
+    if not masking_inst_doc.exists:
+        raise HTTPException(404, f"No masking instance of {id} found")
+    
+    masking_inst_ref.delete()
+
+    return {"message": f"Masking instance with ID {id} deleted successfully"}
+
+class ManualMaskingHistoryParams(BaseModel):
+    masking_instance_id: str
+
+# @app.get("/manual-masking-history")
+# async def get_manual_masking_history(req_body: ManualMaskingHistoryParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+#     try:
+#         col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/')
 
 @app.post("/run-model")
 async def model_reponse(current_user: Annotated[str, Depends(get_current_active_user)]): 
