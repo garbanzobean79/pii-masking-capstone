@@ -48,7 +48,9 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             const response= await fetch('http://127.0.0.1:8000/run-model', {
                 method: 'POST',
                 headers: {
-                    'accept': 'application/json'
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`
                 }
             });
         

@@ -512,7 +512,6 @@ class ManualMaskingHistoryParams(BaseModel):
 
 @app.post("/run-model")
 async def model_reponse(current_user: Annotated[str, Depends(get_current_active_user)]): 
-
     return session.get_response()
 
 ######
