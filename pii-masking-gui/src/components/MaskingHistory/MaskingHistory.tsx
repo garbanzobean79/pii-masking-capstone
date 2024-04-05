@@ -1,7 +1,7 @@
 // import Button from "./Button";
 import { 
     Button, Box, CircularProgress, Divider, Typography, CssBaseline, IconButton, 
-    List, ListItemText, ListItemButton, ListItemSecondaryAction, Grid 
+    List, ListItemText, ListItemButton, ListItemSecondaryAction, Grid, Tooltip
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
@@ -279,9 +279,11 @@ function MaskingHistory(){
                 console.log(buttonColor);
 
                 renderedText.push(
-                    <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
-                        <b>{entity_loc[i].word}</b>: {entity_loc[i].entity_group}
-                    </Button>
+                    <Tooltip title={entity_loc[i]?.score ? `Score: ${entity_loc[i].score!.toFixed(2)}` : null}>
+                        <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
+                            <b>{entity_loc[i].word}</b>: {entity_loc[i].entity_group}
+                        </Button>
+                    </Tooltip>
                 )
 
                 // Increment index counter by the entity length
@@ -360,9 +362,11 @@ function MaskingHistory(){
                 }
 
                 renderedText.push(
-                    <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
-                        <b>{entity_loc[i].masked_to}</b>: {entity_loc[i].entity_group}
-                    </Button>
+                    <Tooltip title={entity_loc[i]?.score ? `Score: ${entity_loc[i].score!.toFixed(2)}` : null}>
+                        <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
+                            <b>{entity_loc[i].masked_to}</b>: {entity_loc[i].entity_group}
+                        </Button>
+                    </Tooltip>
                 )
 
                 // Increment index counter by the entity length
@@ -442,7 +446,7 @@ function MaskingHistory(){
                             </Box>
                             <Box>
                                 <Typography variant="h5" sx={{ fontWeight: '600' }}>
-                                    Output Text
+                                    Masked Text
                                 </Typography>
                                 <Typography variant="body2">
                                     {selectedMaskingInstance && renderOutputTextWithEntities(selectedMaskingInstance)}
@@ -465,6 +469,7 @@ function MaskingHistory(){
                         <Box>
                             <Typography variant="h5" sx={{ fontWeight: '600' }}>
                                 Entities
+                                
                             </Typography>
                             <Grid>
                                 {renderEntities()}

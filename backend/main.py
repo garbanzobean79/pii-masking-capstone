@@ -122,7 +122,6 @@ class TokenData(BaseModel):
 
 @app.post("/register/")
 def register(user: RegisteringUser):
-
     # Determine if the user already exists (unique key)
     docs = (
         db.collection('users')
@@ -137,7 +136,6 @@ def register(user: RegisteringUser):
     # Register this user
     # Hash password
     db_user = UserInDB(
-        **user.model_dump(),
         **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
@@ -425,6 +423,7 @@ class ManualMaskingParams(BaseModel):
     masking_instance_id: str
 
 class ManualUnmaskingParams(BaseModel):
+    masking_instance_id: str
     word: list[str]
     entity: list[str]
 
@@ -461,7 +460,53 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
 async def manual_unmask(req_body: ManualUnmaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
 
     original_text, masked_text, tmp_mask_dict = session.manual_unmask(req_body.word, req_body.entity)
-    
+
+    # Create a copy of the list of values to be unmasked
+    req_body_data = req_body.model_dump()
+
+    print(req_body_data)
+    masked_entities = {masked_entity: entity_class for masked_entity, entity_class in zip(req_body_data['word'], req_body_data['entity'])}
+
+    if len(masked_entities) < 1:
+        return original_text, masked_text, tmp_mask_dict    
+
+    # Update manual masking history to remove from most recent manual masking instance
+    mm_col = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/manual_masking_instances')
+
+    # Retrieve and sort all documents by their id
+    docs = [doc for doc in mm_col.get()]
+    sorted_docs = sorted(docs, key=lambda x: int(x.id), reverse=True)
+
+    for doc in sorted_docs:
+        if len(masked_entities) == 0:
+            break
+
+        doc_data = doc.to_dict()
+
+        # Iterate over each entity class
+        entities_to_remove = []
+        for entity_class in doc_data.keys():
+            # Iterate over each entity mapping
+            for masked_from, masked_to in doc_data[entity_class].items():
+                if masked_to in masked_entities.keys():
+                    print("deleting ", entity_class, masked_from)
+                    entities_to_remove.append((entity_class, masked_from))
+
+        # Remove entities from doc_data
+        for entity_class, masked_from in entities_to_remove:
+            del doc_data[entity_class][masked_from]
+
+            if len(doc_data[entity_class]) == 0:
+                del doc_data[entity_class]
+
+        print("doc_data", doc_data)
+
+        # Update masking docs
+        if len(doc_data) == 0:
+            doc.reference.delete()
+        else:
+            doc.reference.set(doc_data)
+
     return original_text, masked_text, tmp_mask_dict
 
 # TODO: change such that only the most recent x documents are retrieved

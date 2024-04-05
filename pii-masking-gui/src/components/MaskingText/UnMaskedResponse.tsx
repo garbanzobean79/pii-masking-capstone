@@ -3,17 +3,17 @@ import { Container } from '@mui/material';
 import React from "react";
 
 interface Props {
-    Output: string;
+    unMasked: string;
 }
 
-function LLMResult({Output}: Props){
+function UnMaskedResponse({unMasked}: Props){
 
     return (
         <Container sx={{margin: '20px', padding: '10px'}}>
-        <Typography variant="h6" fontStyle= "italic">Text Received from LLM</Typography>
-        <Typography paragraph>{Output}</Typography>
+        <Typography variant="h6" fontStyle= "italic">Unmasked Response</Typography>
+        <Typography paragraph>{unMasked}</Typography>
     </Container>
     );
 }
 
-export default LLMResult;
+export default UnMaskedResponse;

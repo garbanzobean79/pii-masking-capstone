@@ -14,7 +14,7 @@ import Entities from './Entities';
 import React from "react";
 import Button from '@mui/material/Button';
 import {useState} from "react";
-
+import { useNavigate } from 'react-router-dom';
 import { Container } from '@mui/material';
 
 interface Props{
@@ -28,16 +28,21 @@ interface Props{
     maskingInstanceId: string;
     expanded: string | false;
     setExpanded: (value: string | false) => void;
+    MaskedTypes: string[];
+    setMaskedTypes: (value: string[]) => void;
+    setResponse: (value: string) => void;
 }
 
 function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities, 
-    setMaskedEntities, setOutput, setMasked, maskingInstanceId, expanded, setExpanded}: Props){
+    setMaskedEntities, setOutput, setMasked, maskingInstanceId, expanded, setExpanded, MaskedTypes, setMaskedTypes, setResponse}: Props){
     const [error, setError]= useState("");
     const [NewType, setType]= useState("");
     const [NewEntity, setNew]= useState("");
     const isVisible: boolean= true;
     const [Entity_Type, setET] = useState<string[][]>([]);
-    const masked_entity: string[][]= []
+    const masked_entity: string[][]= [];
+ 
+    const navigate= useNavigate();
 
     // Counts the number of times the manual mask endpoint 
     // was called (used in storing masking history)
@@ -58,14 +63,19 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             });
         
             if(!response.ok){
+                const data= await response.json();
+                if(data.detail== "Could not validate credentials")
+                    navigate('/sign-in');
                 throw new Error('Failed to mask text');
 
             }
             const data= await response.json();
             console.log(data);
             console.log("fetched data", data.Response_Message);
+            console.log("original: " + data.Orignal_Message);
             setExpanded('panel3');
             setOutput(data.Response_Message);
+            setResponse(data.Orignal_Message);
         }
         catch(error:any){
             if (error instanceof Error) {
@@ -106,10 +116,15 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             });
 
             if(!response.ok){
+                const data= await response.json();
+                if(data.detail== "Could not validate credentials")
+                    navigate('/sign-in');
                 throw new Error('Failed to mask text');
             }
 
             const data= await response.json();
+            if(data.detail== "Could not validate credentials")
+                navigate('/sign-in');
             console.log(data);
             setMasked(data[1]);
             console.log(`number of times manual masking was called: ${manualMaskCount}`)
@@ -137,6 +152,7 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
             console.log(error);
         }
     };
+
 
     const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
@@ -187,8 +203,8 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                 <AccordionDetails>
                     <Container sx={{display: 'flex', flexDirection: 'row', gap: '5%'}}>
                     <MaskingResults Masked= {Masked}/>
-                    <Entities masked_entities={Masked_Entities} isVisible={isVisible} Title={"Masked Entities"}/>
-                    <Entities masked_entities={Entity_Type} isVisible={isVisible} Title={"Entities to Mask"}/>
+                    <Entities masked_entities={Masked_Entities} isVisible={isVisible} setET= {setET} setMaskedEntities= {setMaskedEntities} id= {maskingInstanceId} MaskedTypes= {MaskedTypes} setMasked= {setMasked} setMaskedTypes= {setMaskedTypes} Title={"Masked Entities"}/>
+                    <Entities masked_entities={Entity_Type} isVisible={isVisible} setET= {setET} setMaskedEntities= {setMaskedEntities} id= {maskingInstanceId} MaskedTypes= {MaskedTypes} setMasked= {setMasked} setMaskedTypes= {setMaskedTypes} Title={"Entities to Mask"}/>
                     </Container>
                     <Container  sx={{ marginTop: "20px"}}>
                         <Typography sx= {{marginTop: '10px'}}>Did we miss an entity?</Typography>
