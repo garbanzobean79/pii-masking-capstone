@@ -132,15 +132,17 @@ class mask:
             self.options["custom"]=custom_options
             self.masklevel=self.options["custom"]
 
-    def manual_mask(self,word,entity):
+    def manual_mask(self,words,entity):
         
-        words=word
         print("\n")
         print("please identify the type of the entity you want to mask: ")
-        entity=entity
+       
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
+            print(input1)
+            print(input2)
+            print(self.masked_sentence)
             if(input1 in self.masked_sentence and input2 in self.masklevel):
                 
                 self.manualdict["Entity"].append(input1)
@@ -163,6 +165,32 @@ class mask:
 
         return self.sentence, self.masked_sentence, self.store 
         
+    def manual_unmask(self,words,entity):
+        print("\n")
+        print("please identify the type of the entity you want to unmask: ")
+        for x in range(len(words)):
+            input1=words[x]
+            input2=entity[x]
+            print(input1)
+            print(input2)
+            print(self.masked_sentence)
+            if(input1 in self.masked_sentence and input2 in self.masklevel):
+                
+                occurances=self.masked_sentence.count(input1)
+                index_of_entity=self.store["masked"].index(input1)
+                
+                for x in range(occurances):
+                    self.masked_sentence=self.masked_sentence.replace(input1,self.store["original"][index_of_entity]) #check this again
+                self.store["masked"].remove(input1)
+                self.store["original"].remove(self.store["original"][index_of_entity])
+
+                self.usecount[input2]-=1
+
+            else:
+                print("please enter a valid entity and type \n")
+
+        return self.sentence, self.masked_sentence, self.store 
+
     def get_maskedsentence(self):
         return self.masked_sentence
     
