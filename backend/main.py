@@ -374,7 +374,8 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     inference_res = await get_inference({"inputs": req_body.text})
 
     if(req_body.mask_level==[]):
-        session.change_masklevel(1, req_body. mask_level)
+        session=mask(1,req_body.mask_level)
+        
     else:
         session=mask(0,req_body.mask_level)
         
@@ -432,9 +433,17 @@ class ManualMaskingParams(BaseModel):
     manual_mask_count: int
     masking_instance_id: str
 
+class ManualUnmaskingParams(BaseModel):
+    word: list[str]
+    entity: list[str]
+
+
 @app.post("/manual-mask")
 async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
-    
+    #session.masklevel=current_masklevel
+    #session.masked_sentence=current_mask
+    #session.store=current_mask_dict
+
     original_text, masked_text, tmp_mask_dict = session.manual_mask(req_body.word, req_body.entity)
 
     mask_dict = {}
@@ -452,6 +461,7 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
 
     print(f"storing into {manual_masking_inst_doc_ref.path}:\n{mm_doc}")
 
+
     # TODO: throw a http error instaed of returning an error message
     return_msg = None
     try:
@@ -467,6 +477,13 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
         # raise HTTPException(500, 'There was an error in storing this manual masking instance to your masking history.')
 
     return original_text, masked_text, tmp_mask_dict, return_msg
+
+@app.post("/manual-unmask")
+async def manual_unmask(req_body: ManualUnmaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+
+    original_text, masked_text, tmp_mask_dict = session.manual_unmask(req_body.word, req_body.entity)
+    
+    return original_text, masked_text, tmp_mask_dict
 
 # TODO: change such that only the most recent x documents are retrieved
 @app.get("/masking-history")
