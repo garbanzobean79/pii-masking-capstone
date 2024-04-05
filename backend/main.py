@@ -39,6 +39,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Allow requests from frontend running on different origin
+origins = [
+    "http://localhost:5173",
+    "localhost:5173/"
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 global session
 global current_mask
 global current_masklevel
@@ -72,6 +88,9 @@ INFERENCE_HEADER = {"Authorization": f'Bearer {os.getenv("INFERENCE_TOKEN")}'}
 class User(BaseModel):
     username: str
     email: str | None = None
+    firstname: str | None = None
+    lastname: str | None = None
+    fullname: str | None = None
     firstname: str | None = None
     lastname: str | None = None
     fullname: str | None = None
@@ -118,10 +137,13 @@ def register(user: RegisteringUser):
     # Hash password
     db_user = UserInDB(
         **user.model_dump(),
+        **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
     db_user.register_time = datetime.now()
+    db_user.register_time = datetime.now()
 
+    db.collection('users').document(db_user.username).set(db_user.model_dump())
     db.collection('users').document(db_user.username).set(db_user.model_dump())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
@@ -263,6 +285,15 @@ class MaskData(BaseModel):
 async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, mask_mapping: dict, doc_name: str, user: User):
     print("store_mask_history()")
 
+    col_ref = db.collection(f'users/{user.username}/mask_history')
+    doc_ref = col_ref.document(doc_name)
+
+    # Create the document
+    doc = mask_data.model_dump() | {'created_at': datetime.now()}
+    if masking_instance_name is not None:
+        doc['masking_instance_name'] = masking_instance_name
+
+    print(f"storing the following doc into masking history for user {user.username}:\n{doc}")
     mask_history_col_ref = db.collection(f'users/{user.username}/mask_history')
     mask_history_doc_ref = mask_history_col_ref.document(doc_name)
 
@@ -365,7 +396,6 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
     doc_name = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
     mask_mapping = {orig_entity: masked_entity for orig_entity, masked_entity in zip(entity_dic['original'], entity_dic['masked'])}
-    print(mask_mapping)
     history_res = await store_mask_history(req_body.masking_instance_name, mask_data, mask_mapping, doc_name, current_user)
 
     # Return masked text to frontend
