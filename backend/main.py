@@ -39,6 +39,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+# Allow requests from frontend running on different origin
+origins = [
+    "http://localhost:5173",
+    "localhost:5173/"
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 global session
 global current_mask
 global current_masklevel
@@ -72,6 +88,9 @@ INFERENCE_HEADER = {"Authorization": f'Bearer {os.getenv("INFERENCE_TOKEN")}'}
 class User(BaseModel):
     username: str
     email: str | None = None
+    firstname: str | None = None
+    lastname: str | None = None
+    fullname: str | None = None
     firstname: str | None = None
     lastname: str | None = None
     fullname: str | None = None
@@ -118,10 +137,13 @@ def register(user: RegisteringUser):
     # Hash password
     db_user = UserInDB(
         **user.model_dump(),
+        **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
     db_user.register_time = datetime.now()
+    db_user.register_time = datetime.now()
 
+    db.collection('users').document(db_user.username).set(db_user.model_dump())
     db.collection('users').document(db_user.username).set(db_user.model_dump())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
@@ -263,6 +285,15 @@ class MaskData(BaseModel):
 async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, mask_mapping: dict, doc_name: str, user: User):
     print("store_mask_history()")
 
+    col_ref = db.collection(f'users/{user.username}/mask_history')
+    doc_ref = col_ref.document(doc_name)
+
+    # Create the document
+    doc = mask_data.model_dump() | {'created_at': datetime.now()}
+    if masking_instance_name is not None:
+        doc['masking_instance_name'] = masking_instance_name
+
+    print(f"storing the following doc into masking history for user {user.username}:\n{doc}")
     mask_history_col_ref = db.collection(f'users/{user.username}/mask_history')
     mask_history_doc_ref = mask_history_col_ref.document(doc_name)
 
@@ -296,16 +327,6 @@ async def store_mask_history(masking_instance_name: str | None, mask_data: MaskD
 
 
 async def get_inference(payload):
-    
-    # raise HTTPException(
-    #     status_code=503, 
-    #     detail={
-    #         "message": f"Error from HuggingFace: test message", 
-    #         "estimated_time": f"30"
-    #     },
-    #     headers={'Retry-After': str(30)}
-    # )
-
     response = requests.post(INFERENCE_URL, headers=INFERENCE_HEADER, json=payload)
 
     res_json = response.json()
@@ -365,7 +386,6 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
     doc_name = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
     mask_mapping = {orig_entity: masked_entity for orig_entity, masked_entity in zip(entity_dic['original'], entity_dic['masked'])}
-    print(mask_mapping)
     history_res = await store_mask_history(req_body.masking_instance_name, mask_data, mask_mapping, doc_name, current_user)
 
     # Return masked text to frontend
@@ -414,28 +434,16 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
     #session.masked_sentence=current_mask
     #session.store=current_mask_dict
 
-    original_text, masked_text, tmp_mask_dict = session.manual_mask(req_body.word, req_body.entity)
+    original_text, masked_text, tmp_mask_dict, manual_mask_entity_map = session.manual_mask(req_body.word, req_body.entity)
 
-    mask_dict = {}
-    for (original_entity, masked_entity) in zip(tmp_mask_dict['original'], tmp_mask_dict['masked']):
-        mask_dict[original_entity] = masked_entity
-    
     # Append to mask history
     col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/manual_masking_instances')
     manual_masking_inst_doc_ref = col_ref.document(str(req_body.manual_mask_count))
 
-    # Create the document
-    mm_doc = {
-        "entity_mappings": mask_dict
-    }
-
-    print(f"storing into {manual_masking_inst_doc_ref.path}:\n{mm_doc}")
-
-
     # TODO: throw a http error instaed of returning an error message
     return_msg = None
     try:
-        res = manual_masking_inst_doc_ref.set(mm_doc)
+        res = manual_masking_inst_doc_ref.set(manual_mask_entity_map)
 
         # Update masked text
         db.document(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}') \
@@ -477,10 +485,10 @@ async def get_mask_history(current_user: Annotated[str, Depends(get_current_acti
                 doc_data['entities'].append(entity_doc.to_dict())
 
             # get manual masking instances
-            mm_ref = masking_history_doc.reference.collection("manual_masking_entities")
-            doc_data['manual_masking_entities'] = []
+            mm_ref = masking_history_doc.reference.collection("manual_masking_instances")
+            doc_data['manual_masking_instances'] = []
             for entity_doc in mm_ref.get():
-                doc_data['manual_masking_entities'].append(entity_doc.to_dict())
+                doc_data['manual_masking_instances'].append(entity_doc.to_dict())
 
             mask_history_instances.append(doc_data)
 
@@ -502,18 +510,18 @@ async def delete_masking_instance(id: str, current_user: Annotated[str, Depends(
 
     return {"message": f"Masking instance with ID {id} deleted successfully"}
 
-class ManualMaskingHistoryParams(BaseModel):
+class RunModelInfo(BaseModel):
     masking_instance_id: str
 
-# @app.get("/manual-masking-history")
-# async def get_manual_masking_history(req_body: ManualMaskingHistoryParams, current_user: Annotated[str, Depends(get_current_active_user)]):
-#     try:
-#         col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/')
-
 @app.post("/run-model")
-async def model_reponse(current_user: Annotated[str, Depends(get_current_active_user)]): 
+async def model_reponse(data: RunModelInfo, current_user: Annotated[str, Depends(get_current_active_user)]): 
+    llm_response = session.get_response()
 
-    return session.get_response()
+    # Store model response in db
+    mask_inst_doc_ref = db.document(f'users/{current_user.username}/mask_history/{data.masking_instance_id}')
+    mask_inst_doc_ref.update({'llm_response': llm_response['Response_Message']})
+
+    return llm_response
 
 ######
 # Store fine-tuning data from user

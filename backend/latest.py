@@ -3,6 +3,7 @@
 import os
 import openai
 from dotenv import load_dotenv
+from collections import defaultdict
 load_dotenv()
 
 OPENAI_API_KEY= os.getenv("OPENAI_API_KEY")
@@ -33,7 +34,7 @@ class mask:
     replace={
         "FIRSTNAME":["david","bill","emily","john","robert"],
         "COMPANYNAME":["Google","Apple","Microsoft","Walmart"],
-        "DATE":["january 1st","january 2nd", "january 3rd", "january 4th","january 5th"],
+        "DATE":["January 1st","January 2nd", "January 3rd", "January 4th","January 5th"],
         "CITY":["Toronto","Ottawa", "Montreal", "Vancouver", "Calgary"],
         "SSN":["99-999-999"],
         "EMAIL":["hello@gmail.com","who@yahoo.com"],
@@ -139,12 +140,10 @@ class mask:
         print("\n")
         print("please identify the type of the entity you want to mask: ")
        
+        manual_mask_entity_map = defaultdict(dict)
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
-            print(input1)
-            print(input2)
-            print(self.masked_sentence)
             if(input1 in self.masked_sentence and input2 in self.masklevel):
                 
                 self.manualdict["Entity"].append(input1)
@@ -158,6 +157,7 @@ class mask:
                 for mask_entity_option in self.replace[input2]:
                     if(mask_entity_option not in self.store["masked"] and (input1.upper() != mask_entity_option.upper())):
                         self.store["masked"].append(mask_entity_option)
+                        manual_mask_entity_map[input2][input1] = mask_entity_option     # create dict if doesnt exist, and adds key value pair input1: mask_entity_option
                         break
 
                 self.usecount[input2]+=1
@@ -165,7 +165,7 @@ class mask:
             else:
                 print("please enter a valid entity and type \n")
 
-        return self.sentence, self.masked_sentence, self.store 
+        return self.sentence, self.masked_sentence, self.store, manual_mask_entity_map
         
     def manual_unmask(self,words,entity):
         print("\n")
@@ -200,7 +200,7 @@ class mask:
         response=openai.Completion.create(
         model="gpt-3.5-turbo-instruct",
         prompt=self.masked_sentence, #here is where sentence goes
-        max_tokens=200,
+        max_tokens=1000,
         temperature=0
         )
         response_message = response["choices"][0]["text"]

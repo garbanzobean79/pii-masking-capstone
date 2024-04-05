@@ -9,13 +9,14 @@ import { isTokenExpired } from '../../services/authService';
 function Anonymity(){
 
     const [Checked, setChecked]= useState<boolean>(false); //Default, Custom
-    const [Name, setName] = useState<boolean>(false)
-    const [City, setCity]= useState<boolean>(false)
-    const [Date, setDate] = useState<boolean>(false)
-    const [Email, setEmail]= useState<boolean>(false)
-    const [SSN, setSSN] = useState<boolean>(false)
-    const [Company, setCompany]= useState<boolean>(false)
-    const [Currency, setCurrency]= useState<boolean>(false)
+    const [Name, setName] = useState<boolean>(false);
+    const [City, setCity]= useState<boolean>(false);
+    const [Date, setDate] = useState<boolean>(false);
+    const [Email, setEmail]= useState<boolean>(false);
+    const [SSN, setSSN] = useState<boolean>(false);
+    const [Company, setCompany]= useState<boolean>(false);
+    const [Currency, setCurrency]= useState<boolean>(false);
+    const [State, setState]= useState<boolean>(false);
     const [Masked, setMasked]= useState("");
     const [disabled1, setDisabled1]= useState(true);
     const [disabled2, setDisabled2]= useState(true);
@@ -54,6 +55,8 @@ function Anonymity(){
                 setMaskingInstanceId={setMaskingInstanceId}
                 expanded= {expanded}
                 setExpanded= {setExpanded}
+                State= {State}
+                setState= {setState}
             />
             <MaskingConfirmation 
                 disabled1= {disabled1} 
