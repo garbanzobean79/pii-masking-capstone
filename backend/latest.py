@@ -21,6 +21,8 @@ class mask:
     #Lastname
     #Middlename
     #SSN
+    #STATE
+    #ACCOUNTNUMBER
     #the levels of masking
     sentence=""
     masked_sentence=""
@@ -51,7 +53,7 @@ class mask:
         "masked":[]
     }
 
-    #this dictionary will store how many times each entity has been used
+    #this dictionary will store how many times each entity has been used. useless now
     usecount={
         "FIRSTNAME":0,
         "COMPANYNAME":0,
@@ -65,7 +67,6 @@ class mask:
         "STATE":0,
         "ACCOUNTNUMBER":0
     }
-
 
     #This dictionary is the mask that the user manually assigns: It should also be saved in database for reuse
     manualdict={
@@ -102,14 +103,15 @@ class mask:
                 if(ent["entity_group"]==label):
                     if(ent["word"] not in self.store["original"]):
                         count=sentence.count(ent["word"])
+                        #replacing happens here
+                        for options_for_replacement in self.replace[label]:
+                            if(options_for_replacement not in self.store["masked"] and options_for_replacement.upper()!=ent["word"].upper()):
+                                for y in range(count):
+                                    sentence=sentence.replace(ent["word"],options_for_replacement)
+                                self.store["original"].append(ent["word"])
+                                self.store["masked"].append(options_for_replacement)
+                                break
 
-                        for y in range(count):
-                            sentence=sentence.replace(ent["word"],self.replace[label][self.usecount[label]])
-
-                        self.store["original"].append(ent["word"])
-                        self.store["masked"].append(self.replace[label][self.usecount[label]])
-                        self.usecount[label]+=1
-                        
                     else:
                         count=sentence.count(ent["word"])
                         for y in range(count):
@@ -148,19 +150,16 @@ class mask:
                 
                 self.manualdict["Entity"].append(input1)
                 self.manualdict["Type"].append(input2)
-                occurances=self.masked_sentence.count(input1)
+                count=self.masked_sentence.count(input1)
 
-                for x in range(occurances):
-                    self.masked_sentence=self.masked_sentence.replace(input1,self.replace[input2][self.usecount[input2]]) #check this again
-
-                self.store["original"].append(input1)
-                for mask_entity_option in self.replace[input2]:
-                    if(mask_entity_option not in self.store["masked"] and (input1.upper() != mask_entity_option.upper())):
-                        self.store["masked"].append(mask_entity_option)
-                        manual_mask_entity_map[input2][input1] = mask_entity_option     # create dict if doesnt exist, and adds key value pair input1: mask_entity_option
+                for options_for_replacement in self.replace[input2]:
+                    if(options_for_replacement not in self.store["masked"] and options_for_replacement.upper()!=input1.upper()):
+                        for y in range(count):
+                            self.masked_sentence=self.masked_sentence.replace(input1,options_for_replacement)
+                        self.store["original"].append(input1)
+                        self.store["masked"].append(options_for_replacement)
+                        manual_mask_entity_map[input2][input1] = options_for_replacement
                         break
-
-                self.usecount[input2]+=1
 
             else:
                 print("please enter a valid entity and type \n")
