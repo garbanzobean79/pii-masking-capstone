@@ -1,54 +1,94 @@
-// import Button from "./Button";
-import { Button, Container, Typography } from '@mui/material';
-import  {Link, useNavigate} from 'react-router-dom';
-import {ChangeEvent, useEffect, useState} from "react";
+import { Button, Container, Typography, Accordion, AccordionSummary, AccordionDetails, Divider } from '@mui/material';
+import { Link, useNavigate } from 'react-router-dom';
+import { ChangeEvent, useEffect, useState } from "react";
 import NavBar from './NavBar';
 import { isTokenExpired } from '../services/authService';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
-function Home(){
+function Home() {
 
     const navigate = useNavigate();
+    const [expanded, setExpanded] = useState<string | false>('');
+
+    const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
+        setExpanded(isExpanded ? panel : false);
+    };
 
     useEffect(() => {
-        // Function to run when the component is loaded
         console.log('Component loaded');
-    
-        // You can perform any initialization logic or API calls here
-      }, []); // Empty dependency array ensures this runs only once on component mount
-    
-      const checkSignIn = () => {
-        if(isTokenExpired(sessionStorage.getItem("jwtToken"))){
+      }, []);
+
+    const checkSignIn = () => {
+        if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
             navigate('/sign-in');
-        }
-        else{
+        } else {
             navigate('/masking-text');
         }
-      }
+    }
 
     return (
         <>
-            
-            <Container maxWidth="md" sx={{display: 'flex', flexDirection: 'row', marginTop: '7%', marginBottom: '7%', gap: '10%', justifyContent: 'center', alignItems: 'center'}}>
-                <Container>
-                    <img src= "src/images/customer-avatar-identification.jpg" width={400}/>
+            <Container maxWidth="lg" sx={{ mt: 7, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 4 }}>
+                <Container sx={{ display: 'flex', justifyContent: 'center' }}>
+                    <img src="src/images/customer-avatar-identification.jpg" width={400} alt="Customer Avatar" />
                 </Container>
-                <Container sx={{padding: '20px'}}>
-                    <Typography paragraph>
-                        Anonymize inquiries using a natural language processor model
-                    </Typography>    
-                    <Typography paragraph>
-                        Asks ChatGPT the processed inquiry and displays response
+
+                <Container>
+                    <Typography variant='h4'>
+                        Introducing <b>AnonyChat</b>, a privacy enhancing web application.
                     </Typography>
-                    <Typography paragraph>
-                        User can customize how anonymous their inquiries can be
+                    <Divider sx={{ mt:3 }}></Divider>
+                    <Typography variant='h5' align="center" sx={{ mt: 3, mb: 1 }}>
+                        Features
                     </Typography>
-                    <Typography paragraph>
-                        Past inquiries are stored and be viewed in Masking History
-                    </Typography>
+                    <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="panel1a-header"
+                        >
+                            <Typography>Utilizes a sophisticated natural language processing model</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography>
+                                Our platform employs a sophisticated natural language processing model from HuggingFace to anonymize user inquiries before sending them to ChatGPT for responses.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel2a-content"
+                            id="panel2a-header"
+                        >
+                            <Typography>Customized anonymity levels</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography>
+                                AnonyChat prioritizes user privacy by allowing customization of the level of anonymity for each inquiry. This feature ensures that users have control over how much personal information is disclosed in their interactions.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel3a-content"
+                            id="panel3a-header"
+                        >
+                            <Typography>Stores masking history</Typography>
+                        </AccordionSummary>
+                        <AccordionDetails>
+                            <Typography>
+                                AnonyChat provides a comprehensive Masking History feature, allowing users to review past interactions for transparency and accountability. Masking history instances can be deleted if desired.
+                            </Typography>
+                        </AccordionDetails>
+                    </Accordion>
                 </Container>
             </Container>
-            <Container sx={{display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
-                <Button variant= "contained" onClick={checkSignIn}>Try it Out</Button>
+
+            {/* Container for the "Try it Out" button */}
+            <Container sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mt: 4 }}>
+                <Button variant="contained" onClick={checkSignIn}>Try it Out</Button>
             </Container>
         </>
     );

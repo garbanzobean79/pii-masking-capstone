@@ -65,7 +65,7 @@ function NavBar() {
       <Container maxWidth="xl">
         <Toolbar disableGutters sx={{ margin: 0 }}>
           <Typography
-            variant="h6"
+            variant="h5"
             noWrap
             component="a"
             sx={{
@@ -78,7 +78,7 @@ function NavBar() {
               textDecoration: 'none',
             }}
           >
-            PII Masking Capstone
+            AnonyChat
           </Typography>
 
           <Box sx={{ flexGrow: 1, display: { xs: 'flex', md: 'none' } }}>
@@ -133,7 +133,7 @@ function NavBar() {
               textDecoration: 'none',
             }}
           >
-            PII Masking Capstone
+            AnonyChat
           </Typography>
 
           {/* Buttons for Navigation */}

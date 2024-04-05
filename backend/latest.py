@@ -3,6 +3,7 @@
 import os
 import openai
 from dotenv import load_dotenv
+from collections import defaultdict
 load_dotenv()
 
 OPENAI_API_KEY= os.getenv("OPENAI_API_KEY")
@@ -139,6 +140,7 @@ class mask:
         print("\n")
         print("please identify the type of the entity you want to mask: ")
        
+        manual_mask_entity_map = defaultdict(dict)
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
@@ -155,6 +157,7 @@ class mask:
                 for mask_entity_option in self.replace[input2]:
                     if(mask_entity_option not in self.store["masked"] and (input1.upper() != mask_entity_option.upper())):
                         self.store["masked"].append(mask_entity_option)
+                        manual_mask_entity_map[input2][input1] = mask_entity_option     # create dict if doesnt exist, and adds key value pair input1: mask_entity_option
                         break
 
                 self.usecount[input2]+=1
@@ -162,7 +165,7 @@ class mask:
             else:
                 print("please enter a valid entity and type \n")
 
-        return self.sentence, self.masked_sentence, self.store 
+        return self.sentence, self.masked_sentence, self.store, manual_mask_entity_map
         
     def manual_unmask(self,words,entity):
         print("\n")

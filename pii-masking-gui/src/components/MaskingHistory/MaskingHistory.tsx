@@ -6,6 +6,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from "react";
 
+import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 import { isTokenExpired } from '../../services/authService';
@@ -18,14 +19,17 @@ function MaskingHistory(){
         output: string;
         id: string;
         entities: Entity[];
-        manual_masking_entities: any[]; // You can define a proper interface if needed
+        manual_mask_output?: string;
+        manual_masking_instances: any[]; // You can define a proper interface if needed
+        llm_response: string;
     }
 
     interface Entity {
-        end: number;
-        start: number;
+        is_manual_mask_entity?: boolean;
+        end?: number;
+        start?: number;
         entity_group: string;
-        score: number;
+        score?: number;
         word: string;
         masked_to: string;
     }
@@ -167,29 +171,28 @@ function MaskingHistory(){
         // Group ner entities by entity_group
         const ner_entities: {[key: string]: any[]} = {};
         selectedMaskingInstance?.entities.forEach(entity => {
-            let entity_class = entity.entity_group.toLowerCase();
-            entity_class = entity_class.charAt(0).toUpperCase() + entity_class.slice(1);
-            if (!ner_entities[entity_class]) {
-                ner_entities[entity_class] = []
+            if (!ner_entities[entity.entity_group]) {
+                ner_entities[entity.entity_group] = []
             }
-            ner_entities[entity_class].push(entity);
+            ner_entities[entity.entity_group].push(entity);
         });
+
+        console.log("selected masking instances:", selectedMaskingInstance)
 
         return (
             <Grid>
                 {/* Render entities */}
+                <Typography variant='h5' sx={{ 'mt': 2.5 }}>Model Entities</Typography>
                 {ner_entities && Object.keys(ner_entities).length > 0 &&
                     Object.entries(ner_entities).map(([entityClass, entities]) => (
-                        <Box key={entityClass} sx={{ 'mt': 2 }}>
-                            <Typography variant='h6'>
-                                {entityClass}
-                            </Typography>
+                        <Box key={entityClass} >
+                            <Typography variant="subtitle1">{entityClass}</Typography>
                             {/* Render individual entities for this entity class */}
                             {entities.map((entity, index) => (
                                 <div key={index}>
                                     {/* Render individual entity details */}
                                     <Typography>
-                                        {entity.word} =&#62; {entity?.masked_to}
+                                        {entity.word}&nbsp;&nbsp;<b>&#62;</b>&nbsp;&nbsp;{entity?.masked_to}
                                     </Typography>
                                 </div>
                             ))}
@@ -197,13 +200,23 @@ function MaskingHistory(){
                     ))
                 }
                 {/* Render manual masking entities */}
-                {selectedMaskingInstance?.manual_masking_entities && selectedMaskingInstance.manual_masking_entities.length > 0 &&
-                    selectedMaskingInstance.manual_masking_entities.map((entity, index) => (
-                        <Typography key={index}>
-                            {entity.entity_group}: {entity.word} =&#62; {entity?.masked_to}
-                        </Typography>
-                    ))
-                }
+                <Typography variant='h5' sx={{ mt: 2 }}>Manual Mask Entities</Typography>
+                    {selectedMaskingInstance?.manual_masking_instances && selectedMaskingInstance.manual_masking_instances.length > 0 &&
+                        selectedMaskingInstance.manual_masking_instances.map((instance, index) => (
+                            <div key={index}>
+                                {Object.keys(instance).map((key, index) => (
+                                    <div key={index}>
+                                        <Typography variant="subtitle1">{key}</Typography>
+                                        {Object.entries(instance[key] as Record<string, string>).map(([from_entity, to_entity], index) => (
+                                            <Typography key={index}>
+                                                {from_entity}&nbsp;&nbsp;<b>&#62;</b>&nbsp;&nbsp;{to_entity}
+                                            </Typography>
+                                        ))}
+                                    </div>
+                                ))}
+                            </div>
+                        ))
+                    }
             </Grid>
         );
     }
@@ -221,6 +234,31 @@ function MaskingHistory(){
             }
         })
 
+        maskingInst.manual_masking_instances.forEach((inst: any) => {
+            // iterate through each entity class
+            Object.entries(inst).forEach((element: [string, any]) => {
+                const entity_class: string = element[0];
+                const entity_mappings: Record<string, string> = element[1];
+                let start_index = 0;
+                let index: number;
+                // iterate through each entity
+                Object.keys(entity_mappings).forEach((from_entity: string) => {
+                    while ((index = maskingInst.input.indexOf(from_entity, start_index)) !== -1) {
+                        // Create entity
+                        const entityObj: Entity = {
+                            is_manual_mask_entity: true,
+                            entity_group: entity_class,
+                            word: from_entity,
+                            masked_to: entity_mappings[from_entity]
+                        };
+                        entity_loc[index] = entityObj;
+                        start_index = index + entityObj.word.length;
+                    }
+                });
+  
+            })
+        });
+
         // Iterate through the input string
         let renderedText: JSX.Element[] = [];
         let startSeg = 0;
@@ -230,14 +268,19 @@ function MaskingHistory(){
                 renderedText.push(
                     <span>{maskingInst.input.substring(startSeg, i-1)}</span>
                 )
-
+                
                 // Push the current segment (entity) as button
-                const buttonColor = getColorFromScore(entity_loc[i].score);
+                let buttonColor: string;
+                if (entity_loc[i]?.score !== undefined) {
+                    buttonColor = getColorFromScore(entity_loc[i].score!); // Use ! to assert that score is not undefined
+                } else {
+                    buttonColor = "rgba(128, 128, 128, 0.7)";
+                }
                 console.log(buttonColor);
 
                 renderedText.push(
                     <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
-                        {entity_loc[i].word}: {entity_loc[i].entity_group}
+                        <b>{entity_loc[i].word}</b>: {entity_loc[i].entity_group}
                     </Button>
                 )
 
@@ -257,34 +300,68 @@ function MaskingHistory(){
 
     // TODO: find manual masking entities & avoid collisions with ner entities
     const renderOutputTextWithEntities = (maskingInst: MaskingInstance) => {
+        // use manual masking output if it exists
+        const output = maskingInst?.manual_mask_output ?? maskingInst.output;
+
         // for each entity, store indexes of all instances of the entity in input string
         const entity_loc:{[key:number]: Entity} = {}
         maskingInst.entities.forEach(entity => {
             let start_index = 0;
             let index: number;
-            while ((index = maskingInst.output.indexOf(entity.masked_to, start_index)) !== -1) {
+            while ((index = output.indexOf(entity.masked_to, start_index)) !== -1) {
                 entity_loc[index] = entity;
                 start_index = index + entity.masked_to.length;
             }
         })
 
+        maskingInst.manual_masking_instances.forEach((inst: any) => {
+            // iterate through each entity class
+            Object.entries(inst).forEach((element: [string, any]) => {
+                const entity_class: string = element[0];
+                const entity_mappings: Record<string, string> = element[1];
+                let start_index = 0;
+                let index: number;
+                // iterate through each entity
+                Object.keys(entity_mappings).forEach((from_entity: string) => {
+                    console.log(from_entity + ": " + entity_mappings[from_entity]);
+                    while ((index = output.indexOf(entity_mappings[from_entity], start_index)) !== -1) {
+                        console.log("found", entity_mappings[from_entity], "in ")
+                        // Create entity
+                        const entityObj: Entity = {
+                            is_manual_mask_entity: true,
+                            entity_group: entity_class,
+                            word: from_entity,
+                            masked_to: entity_mappings[from_entity]
+                        };
+                        entity_loc[index] = entityObj;
+                        start_index = index + entityObj.masked_to.length;
+                    }
+                });
+  
+            })
+        });
+
         // Iterate through the input string
         let renderedText: JSX.Element[] = [];
         let startSeg = 0;
-        for (let i = 0; i < maskingInst.output.length; i++) {
+        for (let i = 0; i < output.length; i++) {
             if (entity_loc.hasOwnProperty(i)){
                 // Push the previous segment (non entity) as rendered text
                 renderedText.push(
-                    <span>{maskingInst.output.substring(startSeg, i-1)}</span>
+                    <span>{output.substring(startSeg, i-1)}</span>
                 )
 
                 // Push the current segment (entity) as button
-                const buttonColor = getColorFromScore(entity_loc[i].score);
-                console.log(buttonColor);
+                let buttonColor: string;
+                if (entity_loc[i]?.score !== undefined) {
+                    buttonColor = getColorFromScore(entity_loc[i].score!); // Use ! to assert that score is not undefined
+                } else {
+                    buttonColor = "rgba(128, 128, 128, 0.7)";
+                }
 
                 renderedText.push(
                     <Button variant="outlined" sx={{ mx:1 }} style={{ color: 'black', backgroundColor: buttonColor, textShadow: '0 0 2px white' }}>
-                        {entity_loc[i].masked_to}: {entity_loc[i].entity_group}
+                        <b>{entity_loc[i].masked_to}</b>: {entity_loc[i].entity_group}
                     </Button>
                 )
 
@@ -296,7 +373,7 @@ function MaskingHistory(){
 
         // Push the last segment (non entity) as rendered text
         renderedText.push(
-            <span>{maskingInst.output.substring(startSeg, maskingInst.output.length)}</span>
+            <span>{output.substring(startSeg, output.length)}</span>
         )
 
         return renderedText;
@@ -349,14 +426,14 @@ function MaskingHistory(){
                     <Grid xs={12} sx={{ mt: 2 }}>
                         <Divider />
                     </Grid>
-                    <Grid item xs={8} spacing={8}>
+                    <Grid item xs={7.5} spacing={8}>
                         <Box
                             display="flex"
                             flexDirection="column"
                             gap={4}
                         >
                             <Box>
-                                <Typography variant="h4">
+                                <Typography variant="h5" sx={{ fontWeight: '600' }}>
                                     Input Text
                                 </Typography>
                                 <Typography variant="body2">
@@ -364,21 +441,29 @@ function MaskingHistory(){
                                 </Typography>
                             </Box>
                             <Box>
-                                <Typography variant="h4">
+                                <Typography variant="h5" sx={{ fontWeight: '600' }}>
                                     Output Text
                                 </Typography>
                                 <Typography variant="body2">
-                                    {/* {
-                                        selectedMaskingInstance?.output
-                                    } */}
                                     {selectedMaskingInstance && renderOutputTextWithEntities(selectedMaskingInstance)}
-                            </Typography>
+                                </Typography>
+                            </Box>
+                            <Box>
+                                <Typography variant="h5" sx={{ fontWeight: '600' }}>
+                                    {(selectedMaskingInstance && selectedMaskingInstance?.llm_response) ? "LLM Response" : null}
+                                </Typography>
+                                <Typography variant="body2">
+                                    {selectedMaskingInstance && selectedMaskingInstance?.llm_response}
+                                </Typography>
                             </Box>
                         </Box>
                     </Grid>
-                    <Grid item xs={4}>
+                    <Grid item xs={0.5}>
+                        <Divider variant="middle" orientation="vertical"/>
+                    </Grid>
+                    <Grid item xs={3.5}>
                         <Box>
-                            <Typography variant="h4">
+                            <Typography variant="h5" sx={{ fontWeight: '600' }}>
                                 Entities
                             </Typography>
                             <Grid>

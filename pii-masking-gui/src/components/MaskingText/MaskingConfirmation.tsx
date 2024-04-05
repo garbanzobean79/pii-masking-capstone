@@ -51,7 +51,10 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                     'accept': 'application/json',
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${sessionStorage.getItem("jwtToken")}`
-                }
+                },
+                body: JSON.stringify({
+                    masking_instance_id: maskingInstanceId
+                })
             });
         
             if(!response.ok){
