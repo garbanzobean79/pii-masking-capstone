@@ -122,10 +122,6 @@ class TokenData(BaseModel):
 
 @app.post("/register/")
 def register(user: RegisteringUser):
-
-    print(user.model_dump())
-    print("username", user.username)
-
     # Determine if the user already exists (unique key)
     docs = (
         db.collection('users')
