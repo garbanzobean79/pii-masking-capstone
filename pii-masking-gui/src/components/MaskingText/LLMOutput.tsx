@@ -7,6 +7,7 @@ import { useState} from "react";
 import LLMInput from './LLMInput';
 import LLMResult from './LLMResult';
 import { Container } from '@mui/material';
+import UnMaskedResponse from './UnMaskedResponse';
 import React from "react";
 
 interface Props {
@@ -15,9 +16,10 @@ interface Props {
     Output: string;
     expanded: string | false;
     setExpanded: (value: string | false) => void;
+    unMasked: string;
 }
 
-function LLMOutput({disabled2, Masked, Output, expanded, setExpanded}: Props){
+function LLMOutput({disabled2, Masked, Output, expanded, setExpanded, unMasked}: Props){
 
     const [error, setError]= useState<String>("");
 
@@ -37,6 +39,7 @@ function LLMOutput({disabled2, Masked, Output, expanded, setExpanded}: Props){
                 <AccordionDetails>
                     <LLMInput Masked={Masked}/>
                     <LLMResult Output= {Output}/>
+                    <UnMaskedResponse unMasked= {unMasked}/>
                 </AccordionDetails>
             </Accordion>        
         </>

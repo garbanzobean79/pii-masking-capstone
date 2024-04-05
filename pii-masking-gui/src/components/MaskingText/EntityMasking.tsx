@@ -43,19 +43,21 @@ interface Props{
     setMaskingInstanceId: (value: string) => void;
     expanded: string | false;
     setExpanded: (value: string | false) => void;
+    setMaskedTypes: (value: string[]) => void;
 }
 
 function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate, 
     Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, State, setState,
-    setDisabled1, Checked, setMasked, setMaskedEntities, setMaskingInstanceId, expanded, setExpanded}: Props){
+    setDisabled1, Checked, setMasked, setMaskedEntities, setMaskingInstanceId, expanded, setExpanded, setMaskedTypes}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
     const [maskingInstanceName, setMaskingInstanceName] = useState<string>('');
-    const masked_entity: string[][]= []
+    const masked_entity: string[][]= [];
     const [Loading, setLoading]= useState(false);
     const [progress, setProgress]= useState<number>(0);
     const [estimated_time, setTime]= useState<number>(0);
     const [MaskLevel, setLevel]= useState<string[]>([]);
+    const masked_type: string[]= [];
 
     const navigate= useNavigate();
 
@@ -114,19 +116,24 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
 
             } else{
                 const data= await response.json();
+                console.log(data);
                 console.log(data.entity_mask);
+                console.log(data.masked_input.entities);
                 setMasked(data.masker.masked_sentence);
                 setMaskingInstanceId(data.masking_instance_id);
                 masked_entity.splice(0);
                 let Array_length= (data.entity_mask.original).length;
                 for(let i=0; i< Array_length; i++){
+                    masked_type.push(data.masked_input.entities[i].entity_group);
                     masked_entity.push([
                         data.entity_mask.original[i],
                         data.entity_mask.masked[i]
                     ]);
                 }
+                console.log(masked_type);
                 setLoading(false);
                 setDisabled1(false);
+                setMaskedTypes([...masked_type]);
                 setMaskedEntities([...masked_entity]);
                 setExpanded('panel2');
             }
