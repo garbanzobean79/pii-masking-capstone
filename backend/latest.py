@@ -23,22 +23,24 @@ class mask:
     #the levels of masking
     sentence=""
     masked_sentence=""
+
     options={
-        "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN"],
+        "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN","STATE"],
         "custom":[]
     }
 
     #this dictionary will store the replacement words for each category
     replace={
         "FIRSTNAME":["david","bill","emily","john","robert"],
-        "COMPANYNAME":["CompanyA","CompanyB","CompanyC"],
-        "DATE":["DATE A","Date B","DATE C","january 1st","january 2nd", "january 3rd", "january 4th"],
-        "CITY":["City A","City B","Toronto","Ottawa", "Montreal", "Vancouver", "CALGARY"],
+        "COMPANYNAME":["Google","Apple","Microsoft","Walmart"],
+        "DATE":["january 1st","january 2nd", "january 3rd", "january 4th"],
+        "CITY":["Toronto","Ottawa", "Montreal", "Vancouver", "Calgary"],
         "SSN":["99-999-999"],
         "EMAIL":["hello@gmail.com","who@yahoo.com"],
         "LASTNAME":["Brown","Willson"],
-        "CURRENCY":["CURRENCY A","CURRENCY B","CURRENCY C"],
-        "MIDDLENAME":["James,Micheal,Grace,Ann"]
+        "CURRENCY":["Euro","Canadian Dollar","Pound"],
+        "MIDDLENAME":["James","Micheal","Grace","Ann"],
+        "STATE":["New York","Florida","Texas"]
     }
 
     #this dictionary will store the original enitity and what it was masked to. good for mapping back
@@ -57,7 +59,8 @@ class mask:
         "CURRENCY":0,
         "SSN":0,
         "MIDDLENAME":0,
-        "LASTNAME":0
+        "LASTNAME":0,
+        "STATE":0
     }
 
 
@@ -67,20 +70,27 @@ class mask:
         "Type":[]
     }
 
-    def __init__(self,mode,**kwargs):
+    def __init__(self,mode,mask_level):
         #initalize these to nothing
         self.mode=mode
         if(mode==1):
             self.masklevel=self.options["default"]
         else:
-            custom_options=kwargs.get('custom',None)
+            custom_options=mask_level
             self.options["custom"]=custom_options
             self.masklevel=self.options["custom"]
     
     def mask_sentence(self,input_sentence,inference_res):
         self.sentence=input_sentence
-
         sentence=self.sentence
+        
+        #reset everything
+        self.store["original"]=[]
+        self.store["masked"]=[]
+        self.manualdict["Entity"]=[]
+        self.manualdict["Type"]=[]
+        for key in self.usecount:
+            self.usecount[key]=0
         
         for ent in inference_res:
             
@@ -89,6 +99,7 @@ class mask:
                 if(ent["entity_group"]==label):
                     if(ent["word"] not in self.store["original"]):
                         count=sentence.count(ent["word"])
+
                         for y in range(count):
                             sentence=sentence.replace(ent["word"],self.replace[label][self.usecount[label]])
 
@@ -130,7 +141,6 @@ class mask:
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
-
             if(input1 in self.masked_sentence and input2 in self.masklevel):
                 
                 self.manualdict["Entity"].append(input1)
@@ -141,7 +151,11 @@ class mask:
                     self.masked_sentence=self.masked_sentence.replace(input1,self.replace[input2][self.usecount[input2]]) #check this again
 
                 self.store["original"].append(input1)
-                self.store["masked"].append(self.replace[input2][0])
+                for mask_entity_option in self.replace[input2]:
+                    if(mask_entity_option not in self.store["masked"] and (input1.upper() != mask_entity_option.upper())):
+                        self.store["masked"].append(mask_entity_option)
+                        break
+
                 self.usecount[input2]+=1
 
             else:
@@ -191,30 +205,6 @@ from fastapi import FastAPI
 
 app = FastAPI()
 
-p1=mask(1)
+
 #p1.mask_sentence("hello my name is bill")
-p1.get_response()
-@app.get("/functions/get_response")
-async def root():
-    return {"message": p1.get_response()}
-
-@app.get("/functions/get_maskedsetence")
-async def root():
-    
-    return {"message": p1.get_maskedsentence()}
-
-@app.get("/functions/get_sentence")
-async def root():
-    
-    return {"message": p1.get_sentence()}
-
-@app.get("/functions/get_masklevel")
-async def root():
-    
-    return {"message": p1.get_masklevel()}
-
-@app.post("/functions/change_sentence")
-async def root(sentence: str):
-    p1.mask_sentence(sentence)
-    return {"message": p1.get_maskedsentence()}
 

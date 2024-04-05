@@ -34,6 +34,8 @@ interface Props{
     setCompany: (value: boolean) => void;
     Currency: boolean;
     setCurrency: (value: boolean) => void;
+    State: boolean;
+    setState: (value: boolean) => void;
     setDisabled1: (value: boolean) => void;
     setMasked: (value: string) => void;
     setMaskedEntities: (value: string[][]) => void;
@@ -43,7 +45,7 @@ interface Props{
 }
 
 function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate, 
-    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, 
+    Email, setEmail, SSN, setSSN, Company, setCompany, Currency, setCurrency, State, setState,
     setDisabled1, Checked, setMasked, setMaskedEntities, setMaskingInstanceId, expanded, setExpanded}: Props){
     const [error, setError] = useState<String>('');
     const [Text, setText] = useState("");
@@ -119,6 +121,7 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                 setLoading(false);
                 setDisabled1(false);
                 setMaskedEntities([...masked_entity]);
+                setExpanded('panel2');
             }
         }
 
@@ -153,12 +156,16 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
             }
             if (SSN) {
                 Mask_Level.push("SSN");
+                Mask_Level.push("ACCOUNTNUMBER");
             }
             if (Company) {
                 Mask_Level.push("COMPANYNAME");
             }
             if (Currency) {
                 Mask_Level.push("CURRENCY");
+            }
+            if(State) {
+                Mask_Level.push("STATE");
             }
         } else {
             // Push all levels to Mask_Level
@@ -169,8 +176,10 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
             Mask_Level.push("DATE");
             Mask_Level.push("EMAIL");
             Mask_Level.push("SSN");
+            Mask_Level.push("ACCOUNTNUMBER");
             Mask_Level.push("COMPANYNAME");
             Mask_Level.push("CURRENCY");
+            Mask_Level.push("STATE");
         }
         setLevel(Mask_Level);
         submitText(Mask_Level);
@@ -220,11 +229,12 @@ function EntityMasking({setChecked, Name, setName, City, setCity, Dates, setDate
                         <FormGroup row>
                             <FormControlLabel control={<Checkbox onChange={(e) => {setName(e.target.checked)}}/>} label="Name"/>
                             <FormControlLabel control={<Checkbox onChange={(e) => {setCity(e.target.checked)}}/>} label="City"/>
+                            <FormControlLabel control={<Checkbox onChange={(e) => {setState(e.target.checked)}}/>} label="State"/>
                             <FormControlLabel control={<Checkbox onChange={(e) => {setCompany(e.target.checked)}}/>} label="Company Name"/>
                             <FormControlLabel control={<Checkbox onChange={(e) => {setCurrency(e.target.checked)}}/>} label="Currency"/>
                             <FormControlLabel control={<Checkbox onChange={(e) => {setDate(e.target.checked)}}/>} label="Date" />
                             <FormControlLabel control={<Checkbox onChange={(e) => {setEmail(e.target.checked)}}/>} label="Email"/>
-                            <FormControlLabel control={<Checkbox onChange={(e) => {setSSN(e.target.checked)}}/>} label="SSN"/>
+                            <FormControlLabel control={<Checkbox onChange={(e) => {setSSN(e.target.checked)}}/>} label="SSN/Account Number"/>
                         </FormGroup>
                         }
                     </Container>

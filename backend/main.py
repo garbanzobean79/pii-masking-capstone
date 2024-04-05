@@ -39,10 +39,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-global session
 
-mask_level=1
-session=mask(mask_level)
+# Allow requests from frontend running on different origin
+origins = [
+    "http://localhost:5173",
+    "localhost:5173/"
+]
+
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+global session
+global current_mask
+global current_masklevel
+global current_mask_dict
+
+session=mask(1,[])
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -69,6 +88,9 @@ INFERENCE_HEADER = {"Authorization": f'Bearer {os.getenv("INFERENCE_TOKEN")}'}
 class User(BaseModel):
     username: str
     email: str | None = None
+    firstname: str | None = None
+    lastname: str | None = None
+    fullname: str | None = None
     firstname: str | None = None
     lastname: str | None = None
     fullname: str | None = None
@@ -115,10 +137,13 @@ def register(user: RegisteringUser):
     # Hash password
     db_user = UserInDB(
         **user.model_dump(),
+        **user.model_dump(),
         hashed_password = get_password_hash(user.password)
     )
     db_user.register_time = datetime.now()
+    db_user.register_time = datetime.now()
 
+    db.collection('users').document(db_user.username).set(db_user.model_dump())
     db.collection('users').document(db_user.username).set(db_user.model_dump())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
@@ -260,6 +285,15 @@ class MaskData(BaseModel):
 async def store_mask_history(masking_instance_name: str | None, mask_data: MaskData, mask_mapping: dict, doc_name: str, user: User):
     print("store_mask_history()")
 
+    col_ref = db.collection(f'users/{user.username}/mask_history')
+    doc_ref = col_ref.document(doc_name)
+
+    # Create the document
+    doc = mask_data.model_dump() | {'created_at': datetime.now()}
+    if masking_instance_name is not None:
+        doc['masking_instance_name'] = masking_instance_name
+
+    print(f"storing the following doc into masking history for user {user.username}:\n{doc}")
     mask_history_col_ref = db.collection(f'users/{user.username}/mask_history')
     mask_history_doc_ref = mask_history_col_ref.document(doc_name)
 
@@ -334,15 +368,21 @@ class MaskTextParams(BaseModel):
 # mask_level: 
 @app.post("/mask-text")
 async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+    #new session everytime this endpoint is run
+    global session
+    
     inference_res = await get_inference({"inputs": req_body.text})
 
     if(req_body.mask_level==[]):
         session.change_masklevel(1, req_body. mask_level)
     else:
-        session.change_masklevel(0, req_body.mask_level)
+        session=mask(0,req_body.mask_level)
+        
 
     masked_sentence,entity_dic=session.mask_sentence(req_body.text,inference_res) #this will mask the text
-    
+    current_mask=masked_sentence
+    current_mask_dict=entity_dic
+    current_masklevel=req_body.mask_level
     ###
     mask_data = MaskData(
         input = req_body.text,
@@ -355,7 +395,6 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     #modelreponse is a dictionary with the original and the masked reponse from the gpt model
     doc_name = datetime.now().strftime('%m-%d-%Y %H:%M:%S')
     mask_mapping = {orig_entity: masked_entity for orig_entity, masked_entity in zip(entity_dic['original'], entity_dic['masked'])}
-    print(mask_mapping)
     history_res = await store_mask_history(req_body.masking_instance_name, mask_data, mask_mapping, doc_name, current_user)
 
     # Return masked text to frontend
@@ -374,6 +413,17 @@ async def mask_text(req_body: MaskTextParams, current_user: Annotated[str, Depen
     if history_res is not None:
         ret = ret | history_res
 
+
+    if 'error' in inference_res:
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Error from HuggingFace: {inference_res['error']}."
+        )
+    if 'error' in masked_sentence:
+        raise HTTPException(
+            status_code=501, 
+            detail=f"Error from Masking: {masked_sentence['error']}."
+        )
     return ret
 
 class ManualMaskingParams(BaseModel):
@@ -474,7 +524,7 @@ class ManualMaskingHistoryParams(BaseModel):
 #         col_ref = db.collection(f'users/{current_user.username}/mask_history/{req_body.masking_instance_id}/')
 
 @app.post("/run-model")
-async def model_reponse(): 
+async def model_reponse(current_user: Annotated[str, Depends(get_current_active_user)]): 
 
     return session.get_response()
 
