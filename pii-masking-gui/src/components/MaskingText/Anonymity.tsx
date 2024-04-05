@@ -23,7 +23,8 @@ function Anonymity(){
     const [output, setOutput]= useState("");
     const [maskingInstanceId, setMaskingInstanceId] = useState('');
     const [expanded, setExpanded]= useState<string | false>(false) ;
-
+    const [maskedTypes, setMaskedTypes]= useState<string[]>([]);
+    const [unmasked_response, setResponse]= useState<string>("");
     const [maskedEntities, setMaskedEntities] = useState<string[][]>([]);
 
     const navigate= useNavigate();
@@ -57,6 +58,7 @@ function Anonymity(){
                 setExpanded= {setExpanded}
                 State= {State}
                 setState= {setState}
+                setMaskedTypes={setMaskedTypes}
             />
             <MaskingConfirmation 
                 disabled1= {disabled1} 
@@ -69,6 +71,9 @@ function Anonymity(){
                 maskingInstanceId= {maskingInstanceId}
                 expanded= {expanded}
                 setExpanded= {setExpanded}
+                MaskedTypes={maskedTypes}
+                setMaskedTypes={setMaskedTypes}
+                setResponse= {setResponse}
             />
             <LLMOutput 
                 disabled2= {disabled2} 
@@ -76,6 +81,7 @@ function Anonymity(){
                 Output= {output}
                 expanded={expanded}
                 setExpanded= {setExpanded}
+                unMasked= {unmasked_response}
             />
         </>
     );
