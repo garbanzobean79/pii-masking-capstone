@@ -56,8 +56,12 @@ app.add_middleware(
 )
 
 global session
+try:
+    if(session is None):
+        session=mask(1,[])
+except:
+    session=mask(1,[])
 
-session=mask(1,[])
 
 # Load environment variables from .env file
 load_dotenv()

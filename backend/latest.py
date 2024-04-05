@@ -50,7 +50,8 @@ class mask:
     #this dictionary will store the original enitity and what it was masked to. good for mapping back
     store={
         "original":[],
-        "masked":[]
+        "masked":[],
+        "type":[]
     }
 
     #this dictionary will store how many times each entity has been used. useless now
@@ -91,6 +92,7 @@ class mask:
         #reset everything
         self.store["original"]=[]
         self.store["masked"]=[]
+        self.store["type"]
         self.manualdict["Entity"]=[]
         self.manualdict["Type"]=[]
         for key in self.usecount:
@@ -110,6 +112,7 @@ class mask:
                                     sentence=sentence.replace(ent["word"],options_for_replacement)
                                 self.store["original"].append(ent["word"])
                                 self.store["masked"].append(options_for_replacement)
+                                self.store["type"].append(label)
                                 break
 
                     else:
@@ -118,6 +121,7 @@ class mask:
                             sentence=sentence.replace(ent["word"],self.store["masked"][self.store["original"].index(ent["word"])])
         
         #change the masked sentence
+        
         self.masked_sentence=sentence
         return sentence,self.store
 
@@ -158,6 +162,7 @@ class mask:
                             self.masked_sentence=self.masked_sentence.replace(input1,options_for_replacement)
                         self.store["original"].append(input1)
                         self.store["masked"].append(options_for_replacement)
+                        self.store["type"].append(input2)
                         manual_mask_entity_map[input2][input1] = options_for_replacement
                         break
 
@@ -182,11 +187,10 @@ class mask:
                 
                 for x in range(occurances):
                     self.masked_sentence=self.masked_sentence.replace(input1,self.store["original"][index_of_entity]) #check this again
+                del self.store["type"][self.store["masked"].index(input1)]
                 self.store["masked"].remove(input1)
                 self.store["original"].remove(self.store["original"][index_of_entity])
-
-                self.usecount[input2]-=1
-
+                
             else:
                 print("please enter a valid entity and type \n")
 
@@ -225,7 +229,7 @@ class mask:
                       "Response_Message":response_message,
                       "Orignal_Message":og
                     }
-
+        print(final_output)
         return final_output
 
 
