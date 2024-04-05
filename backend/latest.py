@@ -25,7 +25,7 @@ class mask:
     masked_sentence=""
 
     options={
-        "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN","STATE"],
+        "default":["CITY","COMPANYNAME","CURRENCY","DATE","EMAIL","FIRSTNAME","LASTNAME","MIDDLENAME","SSN","STATE","ACCOUNTNUMBER"],
         "custom":[]
     }
 
@@ -33,14 +33,15 @@ class mask:
     replace={
         "FIRSTNAME":["david","bill","emily","john","robert"],
         "COMPANYNAME":["Google","Apple","Microsoft","Walmart"],
-        "DATE":["january 1st","january 2nd", "january 3rd", "january 4th"],
+        "DATE":["january 1st","january 2nd", "january 3rd", "january 4th","january 5th"],
         "CITY":["Toronto","Ottawa", "Montreal", "Vancouver", "Calgary"],
         "SSN":["99-999-999"],
         "EMAIL":["hello@gmail.com","who@yahoo.com"],
         "LASTNAME":["Brown","Willson"],
         "CURRENCY":["Euro","Canadian Dollar","Pound"],
         "MIDDLENAME":["James","Micheal","Grace","Ann"],
-        "STATE":["New York","Florida","Texas"]
+        "STATE":["New York","Florida","Texas"],
+        "ACCOUNTNUMBER":["0112345678","0114342678"]
     }
 
     #this dictionary will store the original enitity and what it was masked to. good for mapping back
@@ -60,7 +61,8 @@ class mask:
         "SSN":0,
         "MIDDLENAME":0,
         "LASTNAME":0,
-        "STATE":0
+        "STATE":0,
+        "ACCOUNTNUMBER":0
     }
 
 
