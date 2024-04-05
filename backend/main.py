@@ -403,6 +403,11 @@ class ManualMaskingParams(BaseModel):
     manual_mask_count: int
     masking_instance_id: str
 
+class ManualUnmaskingParams(BaseModel):
+    word: list[str]
+    entity: list[str]
+
+
 @app.post("/manual-mask")
 async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
     #session.masklevel=current_masklevel
@@ -442,6 +447,13 @@ async def manual_mask(req_body: ManualMaskingParams, current_user: Annotated[str
         # raise HTTPException(500, 'There was an error in storing this manual masking instance to your masking history.')
 
     return original_text, masked_text, tmp_mask_dict, return_msg
+
+@app.post("/manual-unmask")
+async def manual_unmask(req_body: ManualUnmaskingParams, current_user: Annotated[str, Depends(get_current_active_user)]):
+
+    original_text, masked_text, tmp_mask_dict = session.manual_unmask(req_body.word, req_body.entity)
+    
+    return original_text, masked_text, tmp_mask_dict
 
 # TODO: change such that only the most recent x documents are retrieved
 @app.get("/masking-history")
