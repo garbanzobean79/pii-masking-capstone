@@ -446,7 +446,7 @@ function MaskingHistory(){
                             </Box>
                             <Box>
                                 <Typography variant="h5" sx={{ fontWeight: '600' }}>
-                                    Output Text
+                                    Masked Text
                                 </Typography>
                                 <Typography variant="body2">
                                     {selectedMaskingInstance && renderOutputTextWithEntities(selectedMaskingInstance)}
