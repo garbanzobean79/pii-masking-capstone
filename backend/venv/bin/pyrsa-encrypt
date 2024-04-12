@@ -1,4 +1,4 @@
-#!/Users/sophikagoban/Desktop/Capstone/pii-masking-capstone/backend/venv/bin/python3.12
+#!/home/garysan/git/pii-masking-capstone/backend/venv/bin/python3
 # -*- coding: utf-8 -*-
 import re
 import sys

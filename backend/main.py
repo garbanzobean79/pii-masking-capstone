@@ -104,10 +104,6 @@ class RegisteringUser(User):
 class UserInDB(User):
     hashed_password: str
 
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
-
 #######
 # User Validation
 #######
@@ -146,25 +142,6 @@ def register(user: RegisteringUser):
     db.collection('users').document(db_user.username).set(db_user.model_dump())
     return {'message': 'User successfully created', 'username': user.username, 'register_time': datetime.now()}
 
-
-@app.get("/usernames/{username}")
-def read_username(username: str):
-    logger.info('GET Request to /usernames/{username}')
-    # users_ref = db.collection("users")
-
-    # query_ref = users_ref.where(filter=firestore.FieldFilter("username", "==", username))
-
-    # doc = query_ref.get()
-
-    docs = (
-        db.collection("users")
-        .where(filter=firestore.FieldFilter("username", "==", username))
-        .stream()
-    )
-
-    for doc in docs:
-        print(f"{doc.id} => {doc.to_dict()}")
-        return doc.to_dict()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

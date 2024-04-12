@@ -6,6 +6,8 @@ key.json
 
 todo.txt
 
+.venv/*
+
 /venv
 
 todo.txt
