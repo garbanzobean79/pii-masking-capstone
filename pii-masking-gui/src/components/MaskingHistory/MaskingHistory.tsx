@@ -44,16 +44,8 @@ function MaskingHistory(){
 
     // Check if user is signed in and fetch masking history
     useEffect(() => {
-        // Function to run when the component is loaded
-        console.log('in MaskingHistory.tsx useEffect');
-    
-        // Check if the user is signed in'
-        console.log(`checking if the user is logged in: jwt: ${sessionStorage.getItem("jwtToken")}`)
-        
         if (isTokenExpired(sessionStorage.getItem("jwtToken"))) {
             navigate('/sign-in');
-        } else {
-            console.log("valid token in local storage: " + sessionStorage.getItem("jwtToken"));
         }
 
         // Fetch masking history
@@ -91,10 +83,6 @@ function MaskingHistory(){
 
         fetch_masking_history();
     }, []);
-    
-    useEffect(() => {
-        console.log("new selectedMaskingInstance: ", selectedMaskingInstance?.id);
-    }, [selectedMaskingInstance])
 
     useEffect(() => {
         if (maskingHistory !== null && maskingHistory.length > 0) {
@@ -103,8 +91,6 @@ function MaskingHistory(){
     }, [maskingHistory])
 
     const deleteMaskingInstance = (delete_item: MaskingInstance) => {
-        console.log("Deleting the masking instance", delete_item);
-    
         const id = delete_item.id; // Assuming item has an 'id' property
     
         fetch(`http://127.0.0.1:8000/masking-instance/${id}`, {
@@ -121,8 +107,6 @@ function MaskingHistory(){
             return response.json();
         })
         .then(data => {
-            console.log('Masking instance deleted successfully:', data);
-
             setMaskingHistory(maskingHistory.filter(item => item !== delete_item));
 
             if (selectedMaskingInstance == delete_item) {
@@ -176,8 +160,6 @@ function MaskingHistory(){
             }
             ner_entities[entity.entity_group].push(entity);
         });
-
-        console.log("selected masking instances:", selectedMaskingInstance)
 
         return (
             <Grid>
@@ -266,7 +248,7 @@ function MaskingHistory(){
             if (entity_loc.hasOwnProperty(i)){
                 // Push the previous segment (non entity) as rendered text
                 renderedText.push(
-                    <span>{maskingInst.input.substring(startSeg, i-1)}</span>
+                    <span>{maskingInst.input.substring(startSeg, i)}</span>
                 )
                 
                 // Push the current segment (entity) as button
@@ -276,7 +258,6 @@ function MaskingHistory(){
                 } else {
                     buttonColor = "rgba(128, 128, 128, 0.7)";
                 }
-                console.log(buttonColor);
 
                 renderedText.push(
                     <Tooltip title={entity_loc[i]?.score ? `Score: ${entity_loc[i].score!.toFixed(2)}` : null}>
@@ -288,7 +269,7 @@ function MaskingHistory(){
 
                 // Increment index counter by the entity length
                 startSeg = i + entity_loc[i].word.length;
-                i = startSeg;
+                i = startSeg - 1;
             }
         }
 
@@ -325,9 +306,7 @@ function MaskingHistory(){
                 let index: number;
                 // iterate through each entity
                 Object.keys(entity_mappings).forEach((from_entity: string) => {
-                    console.log(from_entity + ": " + entity_mappings[from_entity]);
                     while ((index = output.indexOf(entity_mappings[from_entity], start_index)) !== -1) {
-                        console.log("found", entity_mappings[from_entity], "in ")
                         // Create entity
                         const entityObj: Entity = {
                             is_manual_mask_entity: true,
@@ -350,7 +329,7 @@ function MaskingHistory(){
             if (entity_loc.hasOwnProperty(i)){
                 // Push the previous segment (non entity) as rendered text
                 renderedText.push(
-                    <span>{output.substring(startSeg, i-1)}</span>
+                    <span>{output.substring(startSeg, i)}</span>
                 )
 
                 // Push the current segment (entity) as button
@@ -371,7 +350,7 @@ function MaskingHistory(){
 
                 // Increment index counter by the entity length
                 startSeg = i + entity_loc[i].masked_to.length;
-                i = startSeg;
+                i = startSeg - 1;
             }
         }
 
