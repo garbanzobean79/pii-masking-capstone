@@ -25,7 +25,7 @@ function Entities({masked_entities, isVisible, Title, setET, setMaskedEntities, 
 
     async function removeEntity (entity: string[], type: string) {
         try{
-
+            console.log("Entities to remove: " + entity + " Type: " + type);
             const word= [entity[1]];
             const type_of_entity= [type];
             const req_body = JSON.stringify({
@@ -33,6 +33,7 @@ function Entities({masked_entities, isVisible, Title, setET, setMaskedEntities, 
                 word: word, 
                 entity: type_of_entity
             })
+            console.log(req_body);
             const response= await fetch('http://127.0.0.1:8000/manual-unmask', {
                 method: 'POST',
                 headers: {
@@ -82,7 +83,7 @@ function Entities({masked_entities, isVisible, Title, setET, setMaskedEntities, 
             const unmask= [...masked_entities][index];
             console.log("Entity: " + "Index: " + index + " " + unmask)
             console.log(MaskedTypes);
-            const type= [...MaskedTypes][index];
+            const type= [...MaskedTypes][index-1];
             console.log("Type: "+ type);
             removeEntity(unmask, type);
         }
