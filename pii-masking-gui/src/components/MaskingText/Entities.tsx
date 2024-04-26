@@ -81,9 +81,9 @@ function Entities({masked_entities, isVisible, Title, setET, setMaskedEntities, 
         }
         else{
             const unmask= [...masked_entities][index];
-            console.log("Entity: " + "Index: " + index + " " + unmask)
-            console.log(MaskedTypes);
-            const type= [...MaskedTypes][index-1];
+            console.log("Entity: " + unmask + "Index: " + index);
+            console.log("MaskedTypes: " + MaskedTypes);
+            const type= [...MaskedTypes][index];
             console.log("Type: "+ type);
             removeEntity(unmask, type);
         }
