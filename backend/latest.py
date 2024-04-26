@@ -150,7 +150,7 @@ class mask:
         for x in range(len(words)):
             input1=words[x]
             input2=entity[x]
-            if(input1 in self.masked_sentence and input2 in self.masklevel):
+            if(input1 in self.masked_sentence and input2 in self.options["default"]):
                 
                 self.manualdict["Entity"].append(input1)
                 self.manualdict["Type"].append(input2)
@@ -180,7 +180,7 @@ class mask:
             print(input1)
             print(input2)
             print(self.masked_sentence)
-            if(input1 in self.masked_sentence and input2 in self.masklevel):
+            if(input1 in self.masked_sentence and input2 in self.options["default"]):
                 
                 occurances=self.masked_sentence.count(input1)
                 index_of_entity=self.store["masked"].index(input1)
