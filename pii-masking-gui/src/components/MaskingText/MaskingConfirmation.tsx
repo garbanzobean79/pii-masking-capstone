@@ -91,7 +91,7 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
         console.log(Entity_Type);
         try{
             const Type= Entity_Type.map(row => row[0]);
-            console.log(Type);
+            console.log("Type: " + Type);
             const Word= Entity_Type.map(row => row[1]);
             console.log(Word);
 
@@ -138,9 +138,16 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
                     data[2].masked[i]
                 ]);
             }
-            console.log(masked_entity);
+            let masked_type: string;
+            console.log("Masked Entities: " + masked_entity);
+            console.log("Entity, Type: " + Entity_Type);
             setMasked(data[1]);
             setMaskedEntities(masked_entity);
+            for (let i=0; i<Type.length; i++){
+                setMaskedTypes([...MaskedTypes, Type[i]]);
+            }
+            console.log("Masked Entities: " + Masked_Entities);
+            console.log("Masked Types: " + MaskedTypes);
             setET([]);
         }
         catch(error:any){
@@ -180,9 +187,9 @@ function MaskingConfirmation({disabled1, setDisabled2, Masked, Masked_Entities,
         else{
             setET([...Entity_Type, [NewType.toUpperCase(), NewEntity]])
         }
-        console.log(NewEntity);
-        console.log(NewType);
-        console.log(Entity_Type);
+        console.log("New Entitiy: " + NewEntity);
+        console.log("New Type: " + NewType);
+        console.log("Entity_Type: " + Entity_Type);
         setNew("");
         setType("Select an Entity Type");
     };
